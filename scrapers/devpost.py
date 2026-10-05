@@ -12,7 +12,6 @@ def devpost_hackathon():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         page = browser.new_page()
-
         page.on("request", lambda request: print(">>", request.method, request.url))
         page.on("response", lambda response: print("<<", response.status, response.url))
 
@@ -52,4 +51,6 @@ def api_endpoint_call():
 # devpost_hackathon()
 if __name__=="__main__":
     data = api_endpoint_call()
-    print(data)
+    with open("tests/devpost_text_data.json",'w',encoding="utf-8") as file:
+        json.dump(data,file)
+        file.close()

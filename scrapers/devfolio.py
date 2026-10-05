@@ -1,40 +1,29 @@
-from playwright.sync_api import sync_playwright
+import requests
 import json
 import time
+from datetime import datetime, timezone
+now = datetime.now(timezone.utc)
 
-URL = "https://devfolio.co/hackathons/open"
 
-def scroll_to_bottom(page):
-    initial_height = page.evaluate("document.body.scrollHeight")
-    n=0
-    while True:
-        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        time.sleep(2)
-        new_height = page.evaluate("document.body.scrollHeight")
-        n+=1
-        print("reached ?>>")
-        if new_height == initial_height:
-            print("yes reached")
-            break   
-
-        if n==10:
-            print("Maxed Scroll Limit reached (system set)")
-            break
-    
-    return
+URL = "https://api.devfolio.co/api/search/hackathons"
 
 def devfolio():
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
-        page = browser.new_page()
-        # with page.expect_response("**")
-        page.goto(URL)
-
-        scroll_to_bottom(page)
-        print("scroll done")
-        time.sleep(10)
-    return
+    r = requests.post(URL,
+              json={"type": "application_open", "from": 0, "size": 200})
+    r.raise_for_status()
+    return [h["_source"] for h in r.json()["hits"]["hits"]]
 
 
 if __name__ == "__main__":
-    devfolio()
+    devfolio_data = devfolio()
+    live = [h for h in devfolio_data
+        if datetime.fromisoformat(h["hackathon_setting"]["reg_ends_at"]) > now]
+
+    print(live)
+    print(len(live))
+    print(len(devfolio_data))
+    print(type(devfolio_data))
+    with open("tests/devfolio_test.json",'w') as file:
+        json.dump(devfolio_data,file,indent=2)
+        file.close()
+

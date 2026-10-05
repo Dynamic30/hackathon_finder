@@ -3,8 +3,8 @@
 | Priority | Source      | Type       | Status | Method         | Notes |
 |----------|-------------|-----------|--------|----------------|-------|
 | 1        | Devpost     | Aggregator | ✅     | Json Response (API)       | Public JSON endpoints, easiest to pull, structured |
-| 2        | Unstop      | Aggregator | 🟨     | Json Response (API)    | No official API, largest India college base, scrape listing pages |
-| 3        | Devfolio    | Aggregator | ⬜     | Json Response (API) | Strong India + web3, check for API before scraping |
+| 2        | Unstop      | Aggregator | ✅     | Json Response (API)    | No official API, largest India college base, scrape listing pages |
+| 3        | Devfolio    | Aggregator | ✅     | Json Response (API) | Strong India + web3, check for API before scraping |
 | 4        | Reddit      | Community  | ⬜     | Reddit API     | r/hackathon, r/developersIndia, r/csMajors — search/filter posts |
 | 5        | Telegram    | Community  | ⬜     | Bot listener   | Join hackathon-alert channels via bot, parse messages, start with 1 |
 | 6        | HackerEarth | Aggregator | ⬜     | HTML scrape    | Hiring-focused hackathons + assessments, overlaps with corporate listings |
