@@ -17,13 +17,16 @@ def unstop():
         if not batch:
             print("NO DATA FOUND! CHECK IT ONCE")
             break
+        print(f"page_done : {page_num}")
         data += batch
         page_num+=1
+
 
     return data
 
 if __name__ == "__main__":
     unstop_hackathons = unstop()
     # print(unstop_hackathons)
-    with open("unstop_test_data.json",'w') as file:
+    with open("tests/unstop_test_data.json",'w') as file:
         json.dump(unstop_hackathons,file,indent=2)
+        file.close()
