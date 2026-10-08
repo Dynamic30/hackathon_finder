@@ -7,7 +7,7 @@
 | 3        | Devfolio    | Aggregator | ✅     | Json Response (API) | Strong India + web3, check for API before scraping |
 | 4        | Reddit      | Community  | ⬜     | Reddit API     | r/hackathon, r/developersIndia, r/csMajors — search/filter posts |
 | 5        | Telegram    | Community  | ⬜     | Bot listener   | Join hackathon-alert channels via bot, parse messages, start with 1 |
-| 6        | HackerEarth | Aggregator | ⬜     | HTML scrape    | Hiring-focused hackathons + assessments, overlaps with corporate listings |
+| 6        | HackerEarth | Aggregator | ✅     | HTML scrape    | Hiring-focused hackathons + assessments, overlaps with corporate listings |
 | 7        | Reskilll    | Aggregator | ⬜     | HTML scrape    | India-scale (92k+ regs), newer platform, verify site structure |
 | 8        | Hack2Skill  | Aggregator | ⬜     | HTML scrape    | India-focused, hosts many corporate hackathons (Google etc.) |
 | 9        | GitHub lists| Curated    | ⬜     | Markdown parse | Curated repos (e.g. hackathons-tracker) — use to cross-check coverage, not a core source |
