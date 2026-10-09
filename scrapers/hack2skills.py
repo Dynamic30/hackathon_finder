@@ -44,14 +44,15 @@ def per_card_strucure(r : dict) -> dict:
     "raw": r
     }
 
-URL =  "https://hack2skill.com/api/v1/innovator/public/event/public-list?page=1&records=1000"
+URL = "https://hack2skill.com/api/v1/innovator/public/event/public-list?page=1&records=1000"
 
+def hack2skill_data():
 
-response = requests.get(URL)
-
-print(response.content)
+    response = requests.get(URL)
+    response.raise_for_status()
+    return [per_card_strucure(i) for i in response.json()["data"]]
 
 if __name__ == "__main__":
-    # response =     
+    data = hack2skill_data()
     with open("tests/hack2skills.json",'w') as file:
-        json.dump(response.json(),file,indent=2)
+        json.dump(data,file,indent=2,default=str)

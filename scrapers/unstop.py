@@ -48,7 +48,7 @@ def per_card_strucure(r : dict) -> dict:
     "raw": r
     }
 
-def unstop():
+def unstop_data():
     data = []
     page_num=1
     while True:
@@ -58,21 +58,22 @@ def unstop():
         params={"opportunity": "hackathons", "oppstatus": "open",
                 "per_page": 50, "page": page_num},
         headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
-        
+        r.raise_for_status()
+
         batch = r.json()["data"]["data"]
         if not batch:
-            print("NO DATA FOUND! CHECK IT ONCE")
+            # print("NO DATA FOUND! CHECK IT ONCE")
             break
-        print(f"page_done : {page_num}")
+        # print(f"page_done : {page_num}")
         data += batch
         page_num+=1
 
+    return [per_card_strucure(i) for i in data]
 
-    return data
 
 if __name__ == "__main__":
-    unstop_hackathons = unstop()
+    unstop_hackathons = unstop_data()
     # print(unstop_hackathons)
     with open("tests/unstop_test_data.json",'w') as file:
-        json.dump(unstop_hackathons,file,indent=2)
+        json.dump(unstop_hackathons,file,indent=2,default=str)
         file.close()
