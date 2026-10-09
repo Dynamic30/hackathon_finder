@@ -2,13 +2,55 @@ from playwright.sync_api import sync_playwright
 import time
 import curl_cffi
 import json
+from datetime import datetime, timezone
+now = datetime.now(timezone.utc)
+
 
 # uses devpost api to fetch data
 
 URL = "https://devpost.com/hackathons?status[]=upcoming&status[]=open"
 
 def per_card_strucure(r : dict) -> dict:
-    return
+    loc = r.get("displayed_location") or {}
+    thumb = r.get("thumbnail_url") or ""
+
+    return {
+    "source": "devpost",
+    "source_id": str(r["id"]),
+    "source_url": r["url"],
+    "scraped_at": now,
+
+    "title": r["title"],
+    "organizer": r.get("organization_name"),
+    "description": None,
+    "description_format": None,
+
+    "start_at": None,                   # devpost has no date field, only the
+    "end_at": None,                     # display string in submission_period_dates
+    "reg_start_at": None,
+    "reg_end_at": None,
+    "date_confidence": "none",
+
+    "mode": {"globe": "online", "map-marker-alt": "offline"}.get(loc.get("icon"), "unknown"),
+    "city": None,
+    "state": None,
+    "country": None,
+    "location_raw": loc.get("location"),
+
+    "prize_amount": None,               # prize_amount is an HTML string, needs parsing
+    "prize_currency": None,
+    "prize_is_total": None,
+
+    "team_min": None,
+    "team_max": None,
+    "registrations": r.get("registrations_count"),
+    "is_paid": None,
+
+    "tags": [t["name"] for t in (r.get("themes") or [])],
+    "image_url": ("https:" + thumb) if thumb.startswith("//") else (thumb or None),
+
+    "raw": r
+    }
 
 
 
