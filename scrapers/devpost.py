@@ -52,5 +52,5 @@ def api_endpoint_call():
 if __name__=="__main__":
     data = api_endpoint_call()
     with open("tests/devpost_text_data.json",'w',encoding="utf-8") as file:
-        json.dump(data,file)
+        json.dump(data,file,indent=2)
         file.close()
