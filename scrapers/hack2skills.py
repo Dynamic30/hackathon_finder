@@ -1,6 +1,8 @@
 import requests
 import json
 
+def per_card_strucure(r : dict) -> dict:
+    return
 
 URL =  "https://hack2skill.com/api/v1/innovator/public/event/public-list?page=1&records=1000"
 

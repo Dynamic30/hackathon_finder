@@ -7,6 +7,11 @@ now = datetime.now(timezone.utc)
 
 URL = "https://api.devfolio.co/api/search/hackathons"
 
+def per_card_strucure(r : dict) -> dict:
+    return
+
+
+
 def devfolio():
     r = requests.post(URL,
               json={"type": "application_open", "from": 0, "size": 200})

@@ -2,6 +2,9 @@ import requests
 import json
 import time
 
+def per_card_strucure(r : dict) -> dict:
+    return
+
 def unstop():
     data = []
     page_num=1

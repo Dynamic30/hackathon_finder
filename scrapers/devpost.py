@@ -7,6 +7,11 @@ import json
 
 URL = "https://devpost.com/hackathons?status[]=upcoming&status[]=open"
 
+def per_card_strucure(r : dict) -> dict:
+    return
+
+
+
 def devpost_hackathon():
 
     with sync_playwright() as p:
