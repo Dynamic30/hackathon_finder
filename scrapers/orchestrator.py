@@ -71,7 +71,8 @@ async def db_format_push(scraped_data):
     """
     compare the scraped data with what db has and for any missing field have its is_active column as false for eisting one which either has:
         1. date expiry 
-        2. hackathon is not in currecnt scraped data
+        2. check and re compute priority
+        3. hackathon is not in currecnt scraped data
     """
     # push the data
     return
