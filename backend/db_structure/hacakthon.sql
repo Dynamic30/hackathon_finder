@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS hackathons (
 
     tags                TEXT[]      NOT NULL DEFAULT '{}',
     image_url           TEXT,
-    raw                 JSONB       NOT NULL,
+    -- raw                 JSONB       NOT NULL,
 
     UNIQUE (source, source_id)
 );
