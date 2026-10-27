@@ -8,7 +8,7 @@ def per_card_strucure(r : dict) -> dict:
     return {
     "source": "hack2skill",
     "source_id": r["_id"],
-    "source_url": r.get("link") or (f"https://hack2skill.com/event/{r['eventUrl']}" if r.get("eventUrl") else None),
+    "source_url": r.get("link") or (f"https://hack2skill.com/event/{r['eventUrl']}" if r.get("eventUrl") else "NO URL FOUND"),
     "scraped_at": now,
 
     "title": r["title"],

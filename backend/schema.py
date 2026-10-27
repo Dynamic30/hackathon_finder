@@ -1,3 +1,5 @@
+# contain pydantic schema for api calls
+
 from pydantic import BaseModel
 from enum import Enum
 from datetime import datetime
