@@ -1,6 +1,6 @@
 # contain pydantic schema for api calls
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from enum import Enum
 from datetime import datetime
 
@@ -26,4 +26,10 @@ class CARDS(BaseModel):
     is_paid: bool | None = None
     team_min: int | None = None
     team_max: int | None = None
+
+class PriorityCard(CARDS):
+    priority_score: int
+    priority_tier: str
+    model_config = ConfigDict(from_attributes=True)
+
 
