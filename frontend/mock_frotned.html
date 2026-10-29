@@ -1,12 +1,830 @@
 <!DOCTYPE html>
-<html lang="">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-  </head>
-  <body>
-    <header></header>
-    <main></main>
-    <footer></footer>
-  </body>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hackathon Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfbfd;
+    --surface: #ffffff;
+    --ink: #1d1d1f;
+    --ink-soft: #6e6e73;
+    --ink-faint: #a1a1a6;
+    --line: #ececee;
+    --accent: #d34e3a;
+    --accent-soft: #d34e3a14;
+    --high: #d34e3a;
+    --med: #c98a1e;
+    --low: #2e8b57;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 12px 40px rgba(0,0,0,0.08);
+    --shadow-lg: 0 20px 70px rgba(0,0,0,0.18);
+    --r-card: 24px;
+    --r-inner: 16px;
+    --r-pill: 999px;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  [data-theme="dark"] {
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --ink: #f5f5f7;
+    --ink-soft: #a1a1a6;
+    --ink-faint: #6e6e73;
+    --line: #2c2c2e;
+    --accent: #ff6f5e;
+    --accent-soft: #ff6f5e1f;
+    --high: #ff6f5e;
+    --med: #e5b23a;
+    --low: #4cc47f;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 8px 30px rgba(0,0,0,0.4);
+    --shadow-lg: 0 24px 80px rgba(0,0,0,0.6);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px; line-height: 1.5; letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased; text-wrap: pretty;
+    transition: background 0.3s var(--ease), color 0.3s var(--ease);
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- Header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 30;
+    background: color-mix(in srgb, var(--bg) 80%, transparent);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--line);
+  }
+  .header-inner {
+    max-width: 1080px; margin: 0 auto; padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 9px; }
+  .brand-mark {
+    width: 30px; height: 30px; background: var(--ink); color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; border-radius: 9px;
+  }
+  .brand-name { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; }
+  .brand-tag { font-size: 11px; color: var(--ink-faint); background: var(--line); border-radius: var(--r-pill); padding: 3px 9px; font-weight: 600; }
+
+  .search-wrap {
+    flex: 1 1 300px; max-width: 420px;
+    display: flex; align-items: center; gap: 9px;
+    border: 1px solid var(--line); border-radius: var(--r-pill);
+    padding: 9px 16px; background: var(--surface);
+    transition: box-shadow 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+  .search-wrap:focus-within { border-color: transparent; box-shadow: 0 0 0 4px var(--accent-soft); }
+  .search-wrap svg { flex-shrink: 0; color: var(--ink-faint); }
+  .search-wrap input { border: none; outline: none; background: transparent; color: var(--ink); font-family: inherit; font-size: 14px; width: 100%; }
+  .search-wrap input::placeholder { color: var(--ink-faint); }
+  .clear-btn { background: none; border: none; cursor: pointer; color: var(--ink-faint); display: flex; padding: 2px; border-radius: 50%; }
+  .clear-btn:hover { color: var(--ink); background: var(--line); }
+
+  .header-actions { display: flex; align-items: center; gap: 9px; position: relative; }
+  .icon-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border: none; border-radius: 50%;
+    background: var(--surface); color: var(--ink-soft); cursor: pointer;
+    box-shadow: var(--shadow-sm); transition: transform 0.15s var(--ease), color 0.15s var(--ease);
+  }
+  .icon-btn:hover { color: var(--ink); transform: translateY(-1px); }
+  .icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .live-pill { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 8px 14px; box-shadow: var(--shadow-sm); }
+  @media (max-width: 640px) { .live-pill { display: none; } }
+
+  .settings-modal { max-width: 460px; }
+  .settings-block { background: var(--bg); border-radius: var(--r-inner); padding: 6px 16px; }
+  .settings-block .tweak-row { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .settings-block .tweak-row:last-child { border-bottom: none; }
+  .settings-block .tweak-row:hover { background: none; }
+
+  .pref-field { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .pref-field:last-of-type { border-bottom: none; }
+  .pref-field > label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-weight: 700; margin-bottom: 10px; }
+  .seg { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px; gap: 3px; }
+  .seg-btn { flex: 1; border: none; background: none; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--ink-soft); padding: 8px 0; border-radius: var(--r-pill); cursor: pointer; transition: all 0.15s var(--ease); }
+  .seg-btn.active { background: var(--ink); color: var(--bg); }
+  .pref-input { width: 100%; border: 1px solid var(--line); border-radius: var(--r-pill); padding: 9px 15px; font-family: inherit; font-size: 13.5px; background: var(--surface); color: var(--ink); outline: none; margin-top: 8px; transition: border-color 0.15s var(--ease); }
+  .pref-input:focus { border-color: var(--accent); }
+  .pref-input:disabled { opacity: 0.45; }
+  .ai-submit-full { width: 100%; background: var(--ink); color: var(--bg); border: none; border-radius: var(--r-pill); padding: 12px 0; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 18px; transition: opacity 0.15s var(--ease); }
+  .ai-submit-full:hover { opacity: 0.85; }
+  .save-note { font-size: 12.5px; color: var(--low); font-weight: 600; text-align: center; margin-top: 12px; }
+  .about-block { padding: 20px 18px; }
+  .about-title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+  .about-body { font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); font-weight: 500; margin-bottom: 12px; }
+  .about-body:last-of-type { margin-bottom: 14px; }
+  .about-meta { font-size: 11.5px; color: var(--ink-faint); font-weight: 600; padding-top: 12px; border-top: 1px solid var(--line); }
+  .tweak-row { display: flex; align-items: center; justify-content: space-between; }
+  .tweak-row span { font-size: 14px; font-weight: 500; }
+  .switch { width: 40px; height: 24px; background: var(--line); border-radius: var(--r-pill); position: relative; cursor: pointer; border: none; flex-shrink: 0; transition: background 0.2s var(--ease); }
+  .switch::after { content: ""; position: absolute; width: 20px; height: 20px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: transform 0.2s var(--ease); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  .switch.on { background: var(--low); }
+  .switch.on::after { transform: translateX(16px); }
+
+  /* ---------- Hero ---------- */
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--low); box-shadow: 0 0 0 3px color-mix(in srgb, var(--low) 20%, transparent); }
+
+  /* ---------- Banner ---------- */
+  .banner { max-width: 1080px; margin: 0 auto; padding: 40px 24px 24px; text-align: center; }
+  .banner-btn {
+    background: none; border: none; cursor: pointer; font-family: inherit;
+    display: inline-flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 8px;
+  }
+  .banner-headline { position: relative; display: inline-block; overflow: hidden; padding-bottom: 8px; }
+  .banner-text {
+    font-size: clamp(20px, 3.5vw, 28px); font-weight: 800; letter-spacing: -0.025em;
+    color: var(--ink); display: inline-block; transition: opacity 0.3s var(--ease);
+  }
+  .banner-headline::after {
+    content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: 100%;
+    background: var(--accent); transform: scaleX(0); transform-origin: left;
+    animation: sweep 1.1s var(--ease) 0.25s forwards;
+  }
+  @keyframes sweep {
+    0% { transform: scaleX(0); transform-origin: left; }
+    50% { transform: scaleX(1); transform-origin: left; }
+    50.01% { transform-origin: right; }
+    100% { transform: scaleX(0); transform-origin: right; }
+  }
+  .banner-reveal {
+    font-size: 12px; font-weight: 600; color: var(--ink-faint); letter-spacing: 0.02em;
+    opacity: 0; transform: translateY(-4px); transition: all 0.25s var(--ease); height: 0;
+  }
+  .banner-btn:hover .banner-reveal, .banner-btn:focus-visible .banner-reveal { opacity: 1; transform: translateY(0); height: auto; }
+  .banner-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 8px; }
+
+  /* ---------- Controls ---------- */
+  .controls { max-width: 1080px; margin: 0 auto; padding: 12px 24px 8px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tab {
+    background: var(--surface); border: 1px solid var(--line); cursor: pointer;
+    font-family: inherit; font-size: 13.5px; font-weight: 600; color: var(--ink-soft);
+    padding: 8px 16px; border-radius: var(--r-pill); transition: all 0.18s var(--ease);
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .sort-wrap { position: relative; }
+  .sort-btn {
+    display: flex; align-items: center; gap: 7px; font-family: inherit; font-size: 13px; font-weight: 600;
+    color: var(--ink-soft); background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r-pill); padding: 8px 15px; cursor: pointer; transition: color 0.15s var(--ease);
+  }
+  .sort-btn:hover { color: var(--ink); }
+  .sort-menu {
+    position: absolute; right: 0; top: 44px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; min-width: 160px; z-index: 40; padding: 6px; box-shadow: var(--shadow-md);
+    opacity: 0; visibility: hidden; transform: translateY(-6px); transition: all 0.18s var(--ease);
+  }
+  .sort-menu.open { opacity: 1; visibility: visible; transform: translateY(0); }
+  .sort-item { display: block; width: 100%; text-align: left; font-family: inherit; font-size: 13.5px; font-weight: 500; padding: 9px 12px; background: none; border: none; cursor: pointer; color: var(--ink); border-radius: 10px; }
+  .sort-item:hover { background: var(--bg); }
+
+  /* ---------- Cards ---------- */
+  .list { max-width: 1080px; margin: 0 auto; padding: 16px 24px 100px; display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: var(--surface); border-radius: var(--r-card); padding: 22px 26px 22px 30px;
+    box-shadow: var(--shadow-sm); cursor: pointer; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+    transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease);
+  }
+  /* priority accent edge */
+  .card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    border-radius: 4px 0 0 4px; transition: width 0.22s var(--ease);
+  }
+  .card.p-high::before { background: var(--high); }
+  .card.p-medium::before { background: var(--med); }
+  .card.p-low::before { background: var(--low); }
+  .card:hover, .card:focus-visible { transform: translateY(-3px); box-shadow: var(--shadow-md); outline: none; }
+  .card:hover::before, .card:focus-visible::before { width: 6px; }
+  .card:hover .card-arrow, .card:focus-visible .card-arrow { opacity: 1; transform: translate(3px,-3px); }
+
+  .card-logo-wrap { flex-shrink: 0; align-self: flex-start; }
+  .card-logo, .card-logo-fallback {
+    width: 48px; height: 48px; border-radius: 12px; object-fit: cover;
+    background: var(--bg); border: 1px solid var(--line); display: block;
+  }
+  .card-logo-fallback {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800; color: var(--ink-soft);
+    font-family: 'Fraunces', serif;
+  }
+  .modal-logo .card-logo, .modal-logo .card-logo-fallback { width: 52px; height: 52px; border-radius: 13px; }
+
+  .card-left { flex: 1; min-width: 220px; }
+  .card-badges { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700;
+    padding: 4px 10px 4px 9px; border-radius: var(--r-pill); letter-spacing: 0.02em; text-transform: uppercase;
+  }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+  .pill.high { color: var(--high); background: color-mix(in srgb, var(--high) 12%, transparent); }
+  .pill.high::before { background: var(--high); }
+  .pill.medium { color: var(--med); background: color-mix(in srgb, var(--med) 14%, transparent); }
+  .pill.medium::before { background: var(--med); }
+  .pill.low { color: var(--low); background: color-mix(in srgb, var(--low) 14%, transparent); }
+  .pill.low::before { background: var(--low); }
+  .org-badge { font-size: 12.5px; color: var(--ink-faint); font-weight: 600; display: flex; align-items: center; gap: 6px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .org-badge::before { content: ""; width: 3px; height: 3px; border-radius: 50%; background: var(--ink-faint); flex-shrink: 0; }
+  .src-badge { font-size: 10.5px; font-weight: 700; color: var(--ink-faint); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px 9px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .tag.free { color: var(--low); background: color-mix(in srgb, var(--low) 12%, transparent); border-color: transparent; }
+
+  .card-title-line { display: flex; align-items: center; gap: 8px; }
+  .card-title { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+  .card-arrow { opacity: 0; color: var(--accent); transition: all 0.2s var(--ease); flex-shrink: 0; }
+  .card-tags { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 13px; }
+  .tag { font-size: 12px; font-weight: 600; color: var(--ink-soft); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 4px 11px; }
+
+  .card-right { display: flex; align-items: stretch; gap: 10px; flex-wrap: wrap; }
+  .stat {
+    display: flex; flex-direction: column; justify-content: center; gap: 4px;
+    background: var(--bg); border-radius: var(--r-inner); padding: 10px 14px; min-width: 76px;
+  }
+  .stat-label { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); font-weight: 700; }
+  .stat-value { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; text-transform: capitalize; }
+  .stat-value .mi { color: var(--ink-faint); display: flex; }
+  /* prize gets emphasis */
+  .stat.prize { background: color-mix(in srgb, var(--ink) 4%, transparent); }
+  .stat.prize .stat-value { font-size: 15px; }
+  /* urgency: colored when close */
+  .stat.closes.urgent { background: color-mix(in srgb, var(--high) 12%, transparent); }
+  .stat.closes.urgent .stat-label { color: var(--high); }
+  .stat.closes.urgent .stat-value { color: var(--high); }
+
+  .empty-state { text-align: center; padding: 80px 20px; color: var(--ink-faint); }
+  .empty-state svg { margin-bottom: 14px; color: var(--line); }
+  .empty-state p { font-size: 15px; font-weight: 500; }
+
+  /* ---------- Modal ---------- */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+    z-index: 50; display: flex; align-items: center; justify-content: center; padding: 24px;
+    opacity: 0; visibility: hidden; transition: opacity 0.25s var(--ease), visibility 0.25s var(--ease);
+  }
+  .overlay.open { opacity: 1; visibility: visible; }
+  .modal {
+    background: var(--surface); border-radius: 20px; width: 100%; max-width: 500px; max-height: 86vh;
+    overflow-y: auto; padding: 32px; box-shadow: var(--shadow-lg);
+    transform: scale(0.95) translateY(12px); opacity: 0;
+    transition: transform 0.28s var(--ease), opacity 0.28s var(--ease);
+  }
+  .overlay.open .modal { transform: scale(1) translateY(0); opacity: 1; }
+  .modal-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; }
+  .modal-title { font-size: 28px; font-weight: 800; letter-spacing: -0.025em; margin: 12px 0 4px; }
+  .modal-org { font-size: 14px; color: var(--ink-faint); font-weight: 600; }
+  .modal-close { background: var(--bg); border: none; cursor: pointer; color: var(--ink-soft); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s var(--ease); }
+  .modal-close:hover { color: var(--ink); background: var(--line); }
+  .modal-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .fact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px; }
+  .fact { background: var(--bg); border-radius: var(--r-inner); padding: 14px 16px; }
+  .fact-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-weight: 700; margin-bottom: 5px; }
+  .fact-value { font-weight: 700; text-transform: capitalize; font-size: 15px; }
+
+  .section-label { display: flex; align-items: center; gap: 7px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-weight: 700; margin-bottom: 12px; }
+  .news-item { font-size: 14.5px; line-height: 1.55; background: var(--bg); border-radius: var(--r-inner); padding: 13px 16px; margin-bottom: 10px; }
+  .news-empty { font-size: 13.5px; color: var(--ink-faint); }
+
+  .source-list { display: flex; flex-direction: column; gap: 8px; margin-top: 28px; }
+  .source-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg); border-radius: var(--r-inner); cursor: pointer; transition: background 0.15s var(--ease); }
+  .source-row:hover { background: var(--line); }
+  .source-name { font-size: 14px; font-weight: 700; }
+  .source-url { font-size: 12px; color: var(--ink-faint); font-weight: 500; margin-top: 1px; }
+  .source-meta { display: flex; align-items: center; gap: 9px; font-size: 12px; color: var(--ink-faint); font-weight: 600; }
+
+  /* ---------- AI chat ---------- */
+  .ai-widget { position: fixed; bottom: 24px; right: 24px; z-index: 60; }
+  .ai-fab {
+    display: flex; align-items: center; gap: 9px; background: var(--ink); color: var(--bg); border: none;
+    border-radius: var(--r-pill); padding: 13px 22px 13px 18px; cursor: pointer;
+    font-family: inherit; font-size: 14px; font-weight: 700; box-shadow: var(--shadow-md);
+    transition: transform 0.18s var(--ease);
+  }
+  .ai-fab:hover { transform: scale(1.04); }
+  .ai-fab .spark { color: var(--high); display: flex; }
+
+  .ai-popover {
+    position: absolute; bottom: 62px; right: 0; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 18px; width: 320px; max-height: 480px; display: flex; flex-direction: column;
+    box-shadow: var(--shadow-lg); overflow: hidden;
+    opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.97); transform-origin: bottom right;
+    transition: all 0.22s var(--ease);
+  }
+  .ai-popover.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+  .ai-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--line); }
+  .ai-heading { display: flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 800; }
+  .ai-subheading { font-size: 12.5px; color: var(--ink-faint); margin-top: 4px; font-weight: 500; line-height: 1.4; }
+
+  .ai-locked { text-align: center; padding: 24px 20px; }
+  .ai-locked p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; margin-bottom: 0; font-weight: 500; }
+  .wip-badge { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--med); background: color-mix(in srgb, var(--med) 14%, transparent); border-radius: var(--r-pill); padding: 4px 11px; margin-bottom: 10px; }
+  .signin-btn { width: 100%; background: var(--ink); color: var(--bg); border: none; border-radius: var(--r-pill); padding: 11px 0; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.15s var(--ease); }
+  .signin-btn:hover { opacity: 0.85; }
+
+  .ai-chat-wrap { display: none; flex: 1; flex-direction: column; min-height: 0; }
+  .ai-chat-wrap.active { display: flex; }
+  .ai-chat { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .ai-msg { font-size: 13.5px; line-height: 1.5; max-width: 90%; }
+  .ai-msg.user { align-self: flex-end; background: var(--ink); color: var(--bg); padding: 9px 14px; border-radius: 18px 18px 4px 18px; font-weight: 500; }
+  .ai-msg.bot { align-self: flex-start; color: var(--ink); }
+  .ai-msg.bot .bot-label { font-size: 10px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; margin-bottom: 4px; }
+
+  .ai-result { background: var(--bg); border-radius: 14px; padding: 10px 13px; cursor: pointer; transition: background 0.12s var(--ease); margin-top: 8px; }
+  .ai-result:hover { background: var(--line); }
+  .ai-result-name { font-size: 13px; font-weight: 700; }
+  .ai-result-why { font-size: 11px; color: var(--ink-faint); margin-top: 2px; font-weight: 500; }
+
+  .ai-quickrow { display: flex; gap: 7px; padding: 0 18px 12px; flex-wrap: wrap; }
+  .ai-chip { font-size: 11.5px; font-weight: 600; color: var(--ink-soft); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 6px 12px; background: var(--surface); cursor: pointer; transition: all 0.12s var(--ease); }
+  .ai-chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  .ai-input-row { display: flex; align-items: center; gap: 9px; border-top: 1px solid var(--line); padding: 12px 14px; }
+  .ai-input-row input { flex: 1; border: 1px solid var(--line); border-radius: var(--r-pill); padding: 10px 15px; font-family: inherit; font-size: 13px; background: var(--bg); color: var(--ink); outline: none; transition: border-color 0.15s var(--ease); }
+  .ai-input-row input:focus { border-color: var(--accent); }
+  .ai-send { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; background: var(--accent); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s var(--ease); }
+  .ai-send:hover { transform: scale(1.08); }
+
+  /* ---------- View toggle ---------- */
+  .controls-right { display: flex; align-items: center; gap: 10px; }
+  .status-toggle { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px; gap: 2px; }
+  .status-btn { border: none; background: none; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--ink-soft); padding: 7px 14px; border-radius: var(--r-pill); cursor: pointer; transition: all 0.15s var(--ease); }
+  .status-btn:hover { color: var(--ink); }
+  .status-btn.active { background: var(--ink); color: var(--bg); }
+  .view-toggle { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px; gap: 2px; }
+  .view-btn { display: flex; align-items: center; justify-content: center; width: 34px; height: 30px; border: none; background: none; color: var(--ink-faint); cursor: pointer; border-radius: var(--r-pill); transition: all 0.15s var(--ease); }
+  .view-btn:hover { color: var(--ink-soft); }
+  .view-btn.active { background: var(--ink); color: var(--bg); }
+
+  /* ---------- List mode ---------- */
+  .list.mode-list { gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-inner); overflow: hidden; padding: 0; margin-top: 16px; }
+  .list.mode-list { max-width: 1080px; margin-left: auto; margin-right: auto; margin-bottom: 40px; }
+  .mode-list .card {
+    border-radius: 0; box-shadow: none; padding: 14px 20px; gap: 16px;
+    border-bottom: 1px solid var(--line); transform: none !important;
+  }
+  .mode-list .card:last-child { border-bottom: none; }
+  .mode-list .card:hover { background: var(--bg); box-shadow: none; }
+  .mode-list .card::before { border-radius: 0; }
+  .mode-list .card-logo-wrap { display: none; }
+  .mode-list .card-badges { margin-bottom: 4px; }
+  .mode-list .src-badge { display: none; }
+  .mode-list .card-title { font-size: 16px; }
+  .mode-list .card-tags { display: none; }
+  .mode-list .card-right { gap: 18px; align-items: center; }
+  .mode-list .stat { background: none !important; padding: 0; min-width: 0; flex-direction: row; align-items: baseline; gap: 5px; }
+  .mode-list .stat-label { display: none; }
+  .mode-list .stat-value { font-size: 13px; font-weight: 600; }
+  .mode-list .card-arrow { display: none; }
+
+  /* ---------- Pagination ---------- */
+  .pagination { max-width: 1080px; margin: 8px auto 0; padding: 0 24px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .page-btn { min-width: 36px; height: 36px; padding: 0 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft); font-family: inherit; font-size: 13.5px; font-weight: 600; border-radius: 10px; cursor: pointer; transition: all 0.15s var(--ease); }
+  .page-btn:hover:not(:disabled) { color: var(--ink); border-color: var(--ink-faint); }
+  .page-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .page-btn:disabled { opacity: 0.4; cursor: default; }
+  .page-ellipsis { color: var(--ink-faint); padding: 0 4px; font-weight: 600; }
+  .page-info { max-width: 1080px; margin: 18px auto 0; padding: 0 24px; text-align: center; font-size: 12.5px; color: var(--ink-faint); font-weight: 500; }
+
+  ::selection { background: var(--accent-soft); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark">H</div>
+      <span class="brand-name">Hackathon Finder</span>
+      <span class="brand-tag">IN</span>
+    </div>
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="Search by name, organizer, location, or theme…" autocomplete="off" />
+      <button class="clear-btn" id="clearBtn" style="display:none" aria-label="Clear search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="header-actions">
+      <span class="live-pill"><span class="live-dot"></span> Updated 12 min ago</span>
+      <button class="icon-btn" aria-label="Notifications">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <button class="icon-btn" id="settingsToggle" aria-label="Settings">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="banner">
+  <button class="banner-btn" id="bannerBtn">
+    <span class="banner-headline"><span class="banner-text">Every hackathon, before the deadline.</span></span>
+    <span class="banner-reveal">Hackathon Finder — tap to learn more</span>
+  </button>
+</div>
+
+<div class="controls">
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-filter="all">All</button>
+    <button class="tab" data-filter="high">High priority</button>
+    <button class="tab" data-filter="medium">Medium</button>
+    <button class="tab" data-filter="low">Low</button>
+  </div>
+  <div class="controls-right">
+    <div class="status-toggle" id="statusToggle">
+      <button class="status-btn active" data-status="active">Active</button>
+      <button class="status-btn" data-status="inactive">Past</button>
+      <button class="status-btn" data-status="all">All</button>
+    </div>
+    <div class="view-toggle" id="viewToggle">
+      <button class="view-btn active" data-view="card" aria-label="Card view"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/></svg></button>
+      <button class="view-btn" data-view="list" aria-label="List view"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+    </div>
+    <div class="sort-wrap">
+      <button class="sort-btn" id="sortBtn">Sort: <span id="sortLabel" style="color:var(--ink)">Urgency</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="sort-menu" id="sortMenu">
+        <button class="sort-item" data-sort="urgency">Urgency</button>
+        <button class="sort-item" data-sort="prize">Prize</button>
+        <button class="sort-item" data-sort="recent">Recent</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="list" id="list"></div>
+<div class="pagination" id="pagination"></div>
+<div class="page-info" id="pageInfo"></div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+
+<div class="overlay" id="settingsOverlay">
+  <div class="modal settings-modal">
+    <div class="modal-top">
+      <div><h2 class="modal-title" style="margin-top:0">Settings</h2></div>
+      <button class="modal-close" id="closeSettings" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+
+    <div class="section-label">Appearance</div>
+    <div class="settings-block">
+      <div class="tweak-row"><span>Dark mode</span><button class="switch" id="darkSwitch"></button></div>
+      <div class="tweak-row"><span>List mode</span><button class="switch" id="listSwitch"></button></div>
+    </div>
+
+    <div class="section-label" style="margin-top:28px">Notifications</div>
+    <div class="settings-block" id="notifLocked">
+      <div class="ai-locked" style="padding:14px 4px">
+        <span class="wip-badge">In progress</span>
+        <p>Not built yet — daily and weekly alerts over email or phone are on the way.</p>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:28px">About</div>
+    <div class="settings-block about-block">
+      <h3 class="about-title">Every hackathon, before the deadline.</h3>
+      <p class="about-body">Hackathon Finder is one index that scrapes Devpost, Unstop, college notices and community channels — then ranks what it finds by what actually matters to you: your region, your level, prize size, and how soon each one closes.</p>
+      <p class="about-body">It started from a simple problem — good hackathons get discovered too late, buried across a dozen scattered sources. Hackathon Finder pulls them into one place and pushes an alert before the deadline, so you never miss one you'd have wanted to enter.</p>
+      <div class="about-meta">Currently indexing India · v0.1 · more regions coming soon</div>
+    </div>
+  </div>
+</div>
+
+<div class="ai-widget">
+  <div class="ai-popover" id="aiPopover">
+    <div class="ai-header">
+      <div class="ai-heading"><span class="spark"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.6 5.8L20 9l-6.4 1.2L12 16l-1.6-5.8L4 9l6.4-1.2z"/></svg></span>AI Assistant</div>
+      <div class="ai-subheading">Tell it your level, region, or just describe what you want.</div>
+    </div>
+    <div id="aiLocked">
+      <div class="ai-locked">
+        <span class="wip-badge">In progress</span>
+        <p>The AI assistant isn't live yet — we're still building it. It'll let you describe what you're after and get matched automatically.</p>
+      </div>
+    </div>
+  </div>
+  <button class="ai-fab" id="aiToggle">
+    <span class="spark"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.6 5.8L20 9l-6.4 1.2L12 16l-1.6-5.8L4 9l6.4-1.2z"/></svg></span>Ask AI
+  </button>
+</div>
+
+<script>
+// ============================================================
+// REAL DATA — sample of 45 records scraped from the live pipeline
+// (unstop / hackerearth / devfolio). Swap RAW_FEED for your API
+// response; the normalize() layer below maps the feed schema → UI.
+// ============================================================
+const RAW_FEED = [{"source":"hackerearth","source_url":"https://www.hackerearth.com/challenges/competitive/pride-in-tech-by-godrej-capital/","title":"Pride In Tech by Godrej Capital","organizer":"Godrej Capital","start_at":"2026-10-09 14:30:00+00:00","end_at":"2026-10-18 18:29:00+00:00","reg_end_at":null,"mode":"unknown","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":null,"team_max":null,"registrations":1293,"is_paid":null,"tags":["Competitive"],"image_url":"https://media.hackerearth.com/media/hackathon/pride-in-tech-by-godrej-capital/images/b2d3776db5-listing_godrej.jpg"},{"source":"hackerearth","source_url":"https://www.hackerearth.com/challenges/competitive/godaddy-inclusive-innovation-challenge-2026/","title":"GoDaddy Inclusive Innovation Hackathon 2026","organizer":"GoDaddy","start_at":"2026-10-31 07:30:00+00:00","end_at":"2026-11-01 07:30:00+00:00","reg_end_at":null,"mode":"unknown","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":null,"team_max":null,"registrations":447,"is_paid":null,"tags":["Competitive"],"image_url":"https://media.hackerearth.com/media/hackathon/godaddy-inclusive-innovation-challenge-2026/images/4233b3f0c0-Unlock_the_Creator_Hackathon_Banner.jpg"},{"source":"hackerearth","source_url":"https://www.hackerearth.com/challenges/hackathon/agentic-banking-hackathon-2/","title":"Agentic Banking Hackathon","organizer":"Airwallex","start_at":"2026-10-05 14:30:00+00:00","end_at":"2026-11-13 18:29:00+00:00","reg_end_at":null,"mode":"unknown","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":1,"team_max":4,"registrations":0,"is_paid":null,"tags":["Hackathon"],"image_url":"https://media.hackerearth.com/media/hackathon/agentic-banking-hackathon-2/images/b50314cec0-Agentic_Banking_Hackathon_Banner_1.jpg"},{"source":"devfolio","source_url":"https://wild-bugs.devfolio.co","title":"Wild Bugs","organizer":null,"start_at":"2026-10-13T18:30:00+00:00","end_at":"2026-10-15T18:29:00+00:00","reg_end_at":"2026-10-12T18:29:00+00:00","mode":"online","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":1,"team_max":4,"registrations":856,"is_paid":null,"tags":[],"image_url":"https://assets.devfolio.co/hackathons/5f443e91186049e683db454bd81bc14b/assets/cover/457.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/pitchbreak-the-survival-arena-university-school-of-automation-robotics-usar-ggsipu-edc-1768977","title":"Pitch//break: The Survival Arena","organizer":"University School of Automation & Robotics (USAR), GGSIPU EDC","start_at":"2026-10-11T00:00:00+05:30","end_at":"2026-10-18T00:00:00+05:30","reg_end_at":"2026-10-18T00:00:00+05:30","mode":"offline","city":"East Delhi","state":"Delhi","country":"India","prize_amount":20000,"prize_currency":"INR","team_min":1,"team_max":4,"registrations":7,"is_paid":false,"tags":["Creative Thinking","Adaptability","Problem Solving","Persuasive Speaking","Decision Making"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6acb5f590751b_usar.jpg"},{"source":"unstop","source_url":"https://unstop.com/hackathons/webforge-ai-st-vincent-pallotti-college-of-engineering-and-technology-nagpur-1765780","title":"Webforge AI","organizer":"St Vincent pallotti college of engineering and technology nagpur","start_at":"2026-10-10T00:00:00+05:30","end_at":"2026-10-24T16:00:00+05:30","reg_end_at":"2026-10-22T00:00:00+05:30","mode":"hybrid","city":"Nagpur","state":"Maharashtra","country":"India","prize_amount":8000,"prize_currency":"INR","team_min":2,"team_max":3,"registrations":2,"is_paid":true,"tags":["Artificial Intelligence (AI)","Machine Learning Concepts","JavaScript","HTML","Problem Solving"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac921dda5cbc_whatsapp_image_2026-10-09_at_10_46_46_pm.jpeg"},{"source":"unstop","source_url":"https://unstop.com/hackathons/kannada-digital-innovation-hackathon-2026-the-national-institute-of-engineering-karnataka-1769004","title":"Kannada Digital Innovation Hackathon 2026","organizer":"The National Institute of Engineering, Karnataka","start_at":"2026-10-11T00:00:00+05:30","end_at":"2026-10-25T22:00:00+05:30","reg_end_at":"2026-10-23T00:00:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":3000,"prize_currency":"INR","team_min":1,"team_max":1,"registrations":49,"is_paid":false,"tags":["Artificial Intelligence (AI)","Machine Learning Concepts","Mobile Application Development","Data Science Tools","JavaScript"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6acba72478dd6_nie.jpeg"},{"source":"unstop","source_url":"https://unstop.com/hackathons/threws-odyssey-2026-threws-the-research-world-1766434","title":"Threws Odyssey 2026","organizer":"Threws - The Research World","start_at":"2026-10-06T00:00:00+05:30","end_at":"2026-11-15T18:00:00+05:30","reg_end_at":"2026-10-31T00:00:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":150000,"prize_currency":"INR","team_min":1,"team_max":4,"registrations":24,"is_paid":false,"tags":["Problem Solving","Technical Skills","Research Skills","Innovation Management","Project Management"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac68c4b56ffa_threws-logo.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/ideathon-ram-lal-anand-college-university-of-delhi-1768697","title":"Ideathon","organizer":"Ram Lal Anand College, University of Delhi","start_at":"2026-10-10T00:00:00+05:30","end_at":"2026-10-15T17:00:00+05:30","reg_end_at":"2026-10-13T00:00:00+05:30","mode":"offline","city":"New Delhi","state":"Delhi","country":"India","prize_amount":3250,"prize_currency":"INR","team_min":1,"team_max":2,"registrations":19,"is_paid":false,"tags":["Ideation","Artificial Intelligence (AI)","UI/UX Prototyping","Creativity","Public Speaking and Presentation Skills"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6aca052806243_Ram_Lal_Anand_College.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/chronoforge-nitk-surathkal-1768719","title":"ChronoForge","organizer":"National Institute of Technology Karnataka (NITK), Surathkal","start_at":"2026-10-11T00:00:00+05:30","end_at":"2026-10-25T22:00:00+05:30","reg_end_at":"2026-10-18T23:59:00+05:30","mode":"hybrid","city":"Mangaluru","state":"Karnataka","country":"India","prize_amount":50000,"prize_currency":"INR","team_min":2,"team_max":4,"registrations":29,"is_paid":false,"tags":["Artificial Intelligence (AI)","Threat Detection","Proposal Writing","API Integration","Vulnerability Assessment"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6aca040d4f5e4_screenshot_2026-10-10_at_2_18_01_pm.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/craftcon-2k26-desh-bhagat-university-1767851","title":"CRAFTCON 2K26","organizer":"Desh bhagat university","start_at":"2026-10-08T00:00:00+05:30","end_at":"2026-10-23T12:00:00+05:30","reg_end_at":"2026-10-20T00:00:00+05:30","mode":"offline","city":"Amloh","state":"Punjab","country":"India","prize_amount":60000,"prize_currency":"INR","team_min":2,"team_max":6,"registrations":29,"is_paid":true,"tags":["Problem Solving","Software Development Life Cycle (SDLC)","Teamwork and Collaboration","Creativity","Technical Presentations"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac77c0086c36_logo.jpeg"},{"source":"unstop","source_url":"https://unstop.com/hackathons/stem-for-impact-24hrs-hackathon-presidency-university-pu-bangalore-1763829","title":"Stem for Impact 24hrs Hackathon","organizer":"Presidency University (PU), Bangalore","start_at":"2026-10-08T00:00:00+05:30","end_at":"2026-11-01T23:59:32+05:30","reg_end_at":"2026-11-01T00:00:44+05:30","mode":"offline","city":"Bangalore","state":"Karnataka","country":"India","prize_amount":45000,"prize_currency":"INR","team_min":5,"team_max":5,"registrations":13,"is_paid":true,"tags":["Education Software","Instructional Design","Curriculum Development","Inclusive Design","Augmented Reality (AR) Development"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6abd0faec8d85_screenshot_2026-09-30_190318.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/d3coy-shri-vile-parle-kelavani-mandals-dwarkadas-j-sanghvi-college-of-engineering-djsce-mumbai-1767673","title":"D3COY","organizer":"Shri Vile Parle Kelavani Mandal's Dwarkadas J. Sanghvi College of Engineering (DJSCE), Mumbai","start_at":"2026-10-10T00:00:00+05:30","end_at":"2026-11-01T12:00:00+05:30","reg_end_at":"2026-10-25T20:00:00+05:30","mode":"offline","city":"Vile Parle","state":"Maharashtra","country":"India","prize_amount":185000,"prize_currency":"INR","team_min":2,"team_max":4,"registrations":12,"is_paid":true,"tags":["Artificial Intelligence (AI)","Data Protection","Security Engineering","Cyber Security"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac73952a5ce7_whatsapp_image_2026-10-08_at_11_35_36_am.jpeg"},{"source":"unstop","source_url":"https://unstop.com/hackathons/ecclesia-2026-assam-down-town-university-1768309","title":"Ecclesia 2026","organizer":"Assam down town University","start_at":"2026-10-09T00:00:00+05:30","end_at":"2026-10-27T00:00:00+05:30","reg_end_at":"2026-10-27T00:00:00+05:30","mode":"offline","city":"Guwahati","state":"Assam","country":"India","prize_amount":20000,"prize_currency":"INR","team_min":2,"team_max":4,"registrations":24,"is_paid":false,"tags":["Problem Solving","Technical Skills","Teamwork and Collaboration","GitHub","PowerPoint"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac8c3ea8d911_adtu-light-mode-logo-ccvlpoxe.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/cascade26-flagship-hackathon-tantrafiesta26-iiitn-1766233","title":"CASCADE — FLAGSHIP HACKATHON","organizer":"Indian Institute of Information Technology (IIIT), Nagpur","start_at":"2026-10-11T00:00:00+05:30","end_at":"2026-10-26T11:00:00+05:30","reg_end_at":"2026-10-20T00:00:00+05:30","mode":"hybrid","city":"Nagpur","state":"Maharashtra","country":"India","prize_amount":200000,"prize_currency":"INR","team_min":3,"team_max":4,"registrations":47,"is_paid":false,"tags":["Problem Solving","Git Version Control","Technical Skills","Teamwork and Collaboration","Public Speaking and Presentation Skills"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac549443b185_asset_35_2x-removebg-preview.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/startupathon-founders-league-persist-ventures-1766843","title":"Startupathon Founders League","organizer":"Persist Ventures","start_at":"2026-10-09T08:00:00+05:30","end_at":"2026-11-24T00:09:00+05:30","reg_end_at":"2026-10-30T23:59:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":25000,"prize_currency":"INR","team_min":1,"team_max":1,"registrations":50,"is_paid":false,"tags":["Artificial Intelligence (AI)","Backend development","Product Strategy","Cloud computing","User Experience (UX)"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac9eeb4d7b76_images_2.jpeg"},{"source":"unstop","source_url":"https://unstop.com/hackathons/kritical-hacks-2026-igdtuw-delhi-1760989","title":"Kritical Hacks 2026","organizer":"Indira Gandhi Delhi Technical University for Women (IGDTUW), Delhi","start_at":"2026-09-24T00:00:00+05:30","end_at":"2026-11-01T21:00:00+05:30","reg_end_at":"2026-10-17T23:59:00+05:30","mode":"offline","city":"Delhi","state":"Delhi","country":"India","prize_amount":175000,"prize_currency":"INR","team_min":2,"team_max":5,"registrations":1892,"is_paid":false,"tags":["Artificial Intelligence (AI)","Machine Learning Concepts","Artificial Intelligence (AI)","Machine Learning Concepts","Blockchain Technology"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6aca31203f945_logo_3.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/keep-alive-26-iiitn-1766226","title":"Keep Alive ’26","organizer":"Indian Institute of Information Technology (IIIT), Nagpur","start_at":"2026-10-09T02:00:00+05:30","end_at":"2026-10-26T19:00:00+05:30","reg_end_at":"2026-10-18T23:29:00+05:30","mode":"hybrid","city":"Nagpur","state":"Maharashtra","country":"India","prize_amount":25000,"prize_currency":"INR","team_min":3,"team_max":3,"registrations":38,"is_paid":false,"tags":["DevOps Tools","Microservices Architecture","Cloud computing","Linux","Docker"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac54977c651a_asset_35_2x-removebg-preview.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/flashcode-tantrafiesta26-iiitn-1765827","title":"FlashCode","organizer":"Indian Institute of Information Technology (IIIT), Nagpur","start_at":"2026-10-10T00:00:00+05:30","end_at":"2026-10-26T18:00:00+05:30","reg_end_at":"2026-10-26T11:00:10+05:30","mode":"offline","city":"Nagpur","state":"Maharashtra","country":"India","prize_amount":9000,"prize_currency":"INR","team_min":1,"team_max":1,"registrations":130,"is_paid":false,"tags":["Problem Solving","Speed","Adaptability","Critical Thinking","Creativity"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac54a5b52099_asset_35_2x-removebg-preview.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/gameforge-26-university-school-of-automation-robotics-usar-guru-gobind-singh-indraprastha-university-ggsipu-d-1768377","title":"GameForge '26","organizer":"University School of Automation & Robotics (USAR) ,Guru Gobind Singh Indraprastha University (GGSIPU), Delhi","start_at":"2026-10-09T00:00:00+05:30","end_at":"2026-10-22T19:00:00+05:30","reg_end_at":"2026-10-19T00:00:00+05:30","mode":"offline","city":"East Delhi","state":"Delhi","country":"India","prize_amount":50000,"prize_currency":"INR","team_min":1,"team_max":4,"registrations":119,"is_paid":false,"tags":["Game Design","Game Testing","Creativity","Teamwork and Collaboration","Time Management and Organization"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac94d97614a5_gameforge.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/algorithmia-the-icpc-style-coding-challenge-iiitn-1768266","title":"Algorithmia - The ICPC Style Coding Challenge","organizer":"Indian Institute of Information Technology (IIIT), Nagpur","start_at":"2026-10-10T12:00:00+05:30","end_at":"2026-10-25T16:00:00+05:30","reg_end_at":"2026-10-18T00:00:00+05:30","mode":"hybrid","city":"Nagpur","state":"Maharashtra","country":"India","prize_amount":35000,"prize_currency":"INR","team_min":2,"team_max":3,"registrations":87,"is_paid":false,"tags":["Data Structures and Algorithms","Problem Solving","Teamwork and Collaboration","Creative Thinking","Speed"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac8a0aa3a86d_asset_35_2x-removebg-preview.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/debug-decrypt-30-the-ultimate-algorithm-challenge-dronacharya-college-of-engineering-dce-gurgaon-1768341","title":"Debug Decrypt 3.0 — the Ultimate Algorithm Challenge","organizer":"Dronacharya College Of Engineering (DCE), Gurgaon","start_at":"2026-10-09T00:00:00+05:30","end_at":"2026-10-15T17:00:00+05:30","reg_end_at":"2026-10-12T00:00:00+05:30","mode":"offline","city":"Farrukhnagar","state":"Haryana","country":"India","prize_amount":18000,"prize_currency":"INR","team_min":1,"team_max":3,"registrations":81,"is_paid":false,"tags":["Data Structures and Algorithms","Problem Solving","Debugging","Logical Reasoning","Critical Thinking"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac8d72242797_minimalist_de_tech_logo.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/c-code-auction-arena-2026-nutan-maharashtra-institue-of-engineering-and-technology-1768097","title":"C Code Auction Arena 2026","organizer":"Nutan Maharashtra Institue of Engineering and Technology","start_at":"2026-10-09T00:00:00+05:30","end_at":"2026-10-13T15:30:00+05:30","reg_end_at":"2026-10-12T23:59:00+05:30","mode":"offline","city":"Talegaon Dabhade","state":"Maharashtra","country":"India","prize_amount":7000,"prize_currency":"INR","team_min":1,"team_max":1,"registrations":62,"is_paid":false,"tags":["C Programming Language","Problem Solving","Logical Reasoning","Decision Making","Time Management Techniques"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac859274d3f2_logo.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/redline-ares-netaji-subhas-university-of-technology-nsut-delhi-1766284","title":"REDLINE - ARES x Google Developer Groups NSUT","organizer":"Netaji Subhas University of Technology (NSUT), Delhi","start_at":"2026-10-05T00:00:00+05:30","end_at":"2026-10-17T17:00:00+05:30","reg_end_at":"2026-10-16T18:30:00+05:30","mode":"offline","city":"South West Delhi","state":"Delhi","country":"India","prize_amount":18000,"prize_currency":"INR","team_min":1,"team_max":2,"registrations":187,"is_paid":false,"tags":["Artificial Intelligence (AI)","Python","Reinforcement Learning","Decision Making","Probability Theory"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac3cb821ec4f_img_8101.jpg"},{"source":"unstop","source_url":"https://unstop.com/hackathons/ragnarok-tantrafiesta26-iiitn-1767921","title":"RAGNAROK","organizer":"Indian Institute of Information Technology (IIIT), Nagpur","start_at":"2026-10-08T20:30:35+05:30","end_at":"2026-10-26T09:00:00+05:30","reg_end_at":"2026-10-20T18:29:55+05:30","mode":"offline","city":"Nagpur","state":"Maharashtra","country":"India","prize_amount":50000,"prize_currency":"INR","team_min":2,"team_max":4,"registrations":506,"is_paid":false,"tags":["Artificial Intelligence (AI)","Machine Learning Concepts","Conversational AI","Problem Solving","Git Version Control"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac54b2e2e833_asset_35_2x-removebg-preview.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/code-variant-build-01-code-variant-1763900","title":"Code Variant — Build 01","organizer":"Code Variant","start_at":"2026-09-30T00:00:00+05:30","end_at":"2026-10-24T23:59:00+05:30","reg_end_at":"2026-10-16T00:00:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":1500,"prize_currency":"INR","team_min":1,"team_max":4,"registrations":641,"is_paid":false,"tags":["JavaScript","HTML","CSS","UI/UX Design","Adaptability"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6ac8425b4a359_organisation_image-8JlacHIgbu593323671RjplP8sjT.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/national-online-hackathon-2026-edxcellence-llp-1769011","title":"National Online Hackathon 2026","organizer":"EDXcellence LLP","start_at":"2026-10-11T00:00:00+05:30","end_at":"2026-10-25T00:00:00+05:30","reg_end_at":"2026-10-25T00:00:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":1,"team_max":4,"registrations":0,"is_paid":false,"tags":["Artificial Intelligence (AI)","Machine Learning Concepts","Python","Problem Solving","Teamwork and Collaboration"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6acba28f3e280_organisation_image-SKNBuBphbW1064438678pjVtQ5BH82.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/revhack-polygnan-foundation-1768995","title":"Revhack","organizer":"Polygnan Foundation","start_at":"2026-10-11T00:00:00+05:30","end_at":"2026-10-25T00:00:00+05:30","reg_end_at":"2026-10-25T00:00:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":1,"team_max":3,"registrations":0,"is_paid":false,"tags":["Customer Acquisition","Product Strategy","JavaScript","User Experience (UX)","Business development"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6acb97ffbad04_oct_17_10_00_am_oct_18_10_00_pm_4.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/cognext-agent-force-vjti-mumbai-1765869","title":"CognitionNext '26","organizer":"VJTI Mumbai ","start_at":"2026-10-09T00:00:00+05:30","end_at":"2026-10-24T09:00:00+05:30","reg_end_at":"2026-10-21T23:59:00+05:30","mode":"hybrid","city":"Mumbai","state":"Maharashtra","country":"India","prize_amount":null,"prize_currency":null,"team_min":1,"team_max":2,"registrations":22,"is_paid":false,"tags":["Artificial Intelligence (AI)","Problem Solving","Teamwork and Collaboration","API Integration","Time Management and Organization"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac335e8d6134_vjti_logo.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/hack-attack-8-hour-inter-college-hackathon-amc-engineering-college-amcec-bengaluru-1766831","title":"HACK ATTACK — 8-Hour Inter-College Hackathon","organizer":"AMC Engineering College (AMCEC), Bengaluru","start_at":"2026-10-06T00:00:00+05:30","end_at":"2026-10-13T15:02:23+05:30","reg_end_at":"2026-10-13T15:02:23+05:30","mode":"offline","city":"Bangalore","state":"Karnataka","country":"India","prize_amount":null,"prize_currency":null,"team_min":1,"team_max":4,"registrations":33,"is_paid":true,"tags":["Problem Solving","Teamwork and Collaboration","Creativity","Artificial Intelligence (AI)","Public Speaking and Presentation Skills"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac506d203399_cs-ai.jpeg"},{"source":"unstop","source_url":"https://unstop.com/hackathons/the-outpost-frontend-arena-1766381","title":"The Outpost","organizer":"Frontend Arena","start_at":"2026-10-10T11:00:00+05:30","end_at":"2026-11-08T16:00:00+05:30","reg_end_at":"2026-10-30T00:00:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":1,"team_max":1,"registrations":93,"is_paid":false,"tags":["React.js","TypeScript","Tailwind CSS","UI/UX Design","Problem Solving"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac3dfcc89d26_fa_logo.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/code-red-competitive-programming-contest-xordium-50-birla-institute-of-technology-bit-mesra-patna-campus-1768869","title":"CODE RED — Competitive Programming Contest","organizer":"Birla Institute of Technology (BIT), Mesra, Patna Campus","start_at":"2026-10-10T00:00:00+05:30","end_at":"2026-10-25T23:30:00+05:30","reg_end_at":"2026-10-25T00:00:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":1,"team_max":1,"registrations":577,"is_paid":false,"tags":["Data Structures and Algorithms","Problem Solving","Logical Reasoning","Speed","Critical Thinking"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6aca6f271b99d_uploadedmanual-690f8ee97a773_223.webp"},{"source":"unstop","source_url":"https://unstop.com/hackathons/nexhack-30-build-whats-next-nexhack-30-build-whats-next-nexhack-1768863","title":"NexHack 3.0 — Build What's Next","organizer":"NexHack","start_at":"2026-10-11T00:00:00+05:30","end_at":"2026-10-25T00:00:00+05:30","reg_end_at":"2026-10-25T00:00:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":1,"team_max":4,"registrations":42,"is_paid":false,"tags":["Artificial Intelligence (AI)","Problem Solving","Creativity","Teamwork and Collaboration","GitHub"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6aca690ae22ef_whatsapp_image_2026-09-22_at_11_00_29_pm.jpeg"},{"source":"unstop","source_url":"https://unstop.com/hackathons/blackout-ctf-nexploit-1768853","title":"Blackout CTF","organizer":"Nexploit","start_at":"2026-10-10T00:00:00+05:30","end_at":"2026-10-25T00:00:00+05:30","reg_end_at":"2026-10-25T00:00:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":1,"team_max":4,"registrations":220,"is_paid":false,"tags":["Ethical Hacking","Web Application Security Testing","Digital Forensics","Reverse Engineering","Logical Reasoning"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6aca569c1fb0a_whatsapp_image_2026-10-06_at_12_06_34.jpeg"},{"source":"unstop","source_url":"https://unstop.com/hackathons/sphinx-26-hackerss-unity-1767767","title":"Sphinx 26","organizer":"Hackers's Unity","start_at":"2026-10-08T00:00:00+05:30","end_at":"2026-10-31T14:12:00+05:30","reg_end_at":"2026-10-28T12:01:00+05:30","mode":"offline","city":"Jaipur","state":"Rajasthan","country":"India","prize_amount":null,"prize_currency":null,"team_min":1,"team_max":4,"registrations":27,"is_paid":false,"tags":["Artificial Intelligence (AI)","Machine Learning Concepts","Backend development","Internet of Things (IoT)","Cybersecurity Frameworks"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6acb8bdb2165e_organisation_image-CyY2XsTYpI1682594271yn59GSRNiG.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/blitz26-technical-coding-mookambigai-college-of-engineering-1768744","title":"Blitz'26 - Technical Coding & Debugging Event","organizer":"Mookambigai College of Engineering","start_at":"2026-10-10T00:00:00+05:30","end_at":"2026-10-24T00:00:00+05:30","reg_end_at":"2026-10-24T00:00:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":1,"team_max":1,"registrations":11,"is_paid":false,"tags":["Debugging","Java","C Programming Language","Python","Data Structures and Algorithms"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6acb947dc71c0_header_img.jpg"},{"source":"unstop","source_url":"https://unstop.com/hackathons/nexora26-c-abdul-hakeem-college-of-engineering-and-technology-cahcet-veppur-tamil-nadu-1765539","title":"Nexora'26","organizer":"C. Abdul Hakeem College of Engineering and Technology (CAHCET), Veppur, Tamil Nadu","start_at":"2026-10-04T00:00:00+05:30","end_at":"2026-10-12T23:59:00+05:30","reg_end_at":"2026-10-12T23:59:00+05:30","mode":"offline","city":"Vellore","state":"Tamil Nadu","country":"India","prize_amount":null,"prize_currency":null,"team_min":1,"team_max":3,"registrations":5,"is_paid":true,"tags":["Problem Solving","Technical Skills","Creative Thinking","Teamwork and Collaboration","Public Speaking and Presentation Skills"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6ac8664f2c12b_CA.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/codersinpune-hackathon-hackwithpune-1768758","title":"CodersInPune Hackathon - HackWIthPune","organizer":"HackWithPune","start_at":"2026-10-07T00:00:00+05:30","end_at":"2026-11-06T05:48:23+05:30","reg_end_at":"2026-11-05T00:00:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":1,"team_max":4,"registrations":551,"is_paid":false,"tags":["Artificial Intelligence (AI)","Backend development","JavaScript","API Development (REST)","Innovation Management"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6aca16e8a3763_organisation_image-JcGNqAEiOK129458445ftoZRgjThz.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/hack-at-bvp-80-bharati-vidyapeeths-college-of-engineering-1768545","title":"Hack@BVP 8.0","organizer":"Bharati Vidyapeeth's College of Engineering","start_at":"2026-10-09T22:00:00+05:30","end_at":"2026-10-22T20:00:00+05:30","reg_end_at":"2026-10-16T19:00:00+05:30","mode":"hybrid","city":"New Delhi","state":"Delhi","country":"India","prize_amount":null,"prize_currency":null,"team_min":2,"team_max":4,"registrations":243,"is_paid":false,"tags":["Artificial Intelligence (AI)","Internet of Things (IoT)","Problem Solving","Python","Embedded Systems Design"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac933d88668e_hackbvp8_0_logo.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/code-auction-guru-tegh-bahadur-4th-centenary-engineering-college-delhi-1768506","title":"Code Auction","organizer":"Guru Tegh Bahadur 4th Centenary Engineering College, Delhi","start_at":"2026-10-09T00:00:00+05:30","end_at":"2026-10-22T15:00:00+05:30","reg_end_at":"2026-10-20T23:59:00+05:30","mode":"offline","city":"West Delhi","state":"Delhi","country":"India","prize_amount":null,"prize_currency":null,"team_min":2,"team_max":4,"registrations":89,"is_paid":false,"tags":["Problem Solving","Strategic Thinking","Decision Making","Teamwork and Collaboration","Computational Skills"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6ac9c5e52fec8_organisation_image-4irwHEF3zs9283690348emNtJPdSn.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/codepunethinkers-hackathon-hack-with-pune-hackwithpune-1767661","title":"CodePuneThinkers Hackathon - Hack With Pune","organizer":"HackWithPune","start_at":"2026-10-07T18:30:00+05:30","end_at":"2026-11-08T18:30:00+05:30","reg_end_at":"2026-11-08T18:30:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":1,"team_max":4,"registrations":509,"is_paid":false,"tags":["Artificial Intelligence (AI)","Backend development","API Development (REST)","JavaScript","Innovation Management"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6aca0cfc0962b_organisation_image-JcGNqAEiOK129458445ftoZRgjThz.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/indiathon-powered-by-e-cell-iiit-bhubaneswar-co-powered-by-learnapart-international-institute-of-information--1765224","title":"Indiathon – Powered by E-Cell IIIT Bhubaneswar , Co-powered by LearnApart","organizer":"International Institute of Information Technology, Bhubaneswar","start_at":"2026-10-04T00:00:00+05:30","end_at":"2026-11-04T13:37:00+05:30","reg_end_at":"2026-10-19T00:00:00+05:30","mode":"online","city":null,"state":null,"country":null,"prize_amount":null,"prize_currency":null,"team_min":1,"team_max":4,"registrations":82,"is_paid":true,"tags":["Problem Solving","Ideation","Entrepreneurship","New Product Development","Teamwork and Collaboration"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6acb70c137f11_ecell_logo_jpg.jpeg"},{"source":"unstop","source_url":"https://unstop.com/hackathons/build-with-ai-abc-anybody-can-code-tech-yuva-1765191","title":"Build with AI: ABC (Anybody Can Code)","organizer":"Tech Yuva","start_at":"2026-10-03T00:00:00+05:30","end_at":"2026-10-21T18:00:00+05:30","reg_end_at":"2026-10-21T18:00:00+05:30","mode":"offline","city":"Gurgaon","state":"Haryana","country":"India","prize_amount":null,"prize_currency":null,"team_min":2,"team_max":4,"registrations":414,"is_paid":false,"tags":["Artificial Intelligence (AI)","UI/UX Prototyping","Teamwork and Collaboration","Ideation","Public Speaking and Presentation Skills"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac0c3cb9aa7f_ty_logo.jpg"},{"source":"unstop","source_url":"https://unstop.com/competitions/sync-or-sink-the-ultimate-3-player-tech-communication-challenge-vidyalankar-institute-of-technology-vit-mum-1765314","title":"Sync or Sink | The Ultimate 3 Player Tech & Communication Challenge","organizer":"Vidyalankar Institute of Technology (VIT), Mumbai","start_at":"2026-10-07T20:00:00+05:30","end_at":"2026-10-17T00:00:00+05:30","reg_end_at":"2026-10-17T00:00:00+05:30","mode":"offline","city":"Mumbai","state":"Maharashtra","country":"India","prize_amount":null,"prize_currency":null,"team_min":3,"team_max":3,"registrations":11,"is_paid":false,"tags":["Nonverbal Communication","Problem Solving","Time Management and Organization","Teamwork and Collaboration","Communication Skills"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ac13ceea29e7_csivit_logo.png"},{"source":"unstop","source_url":"https://unstop.com/hackathons/procon-jr-indraprastha-institute-of-information-technology-iiit-delhi-1766977","title":"Procon Jr.","organizer":"Indraprastha Institute of Information Technology (IIIT), Delhi","start_at":"2026-10-07T00:00:00+05:30","end_at":"2026-10-21T00:00:00+05:30","reg_end_at":"2026-10-21T00:00:00+05:30","mode":"offline","city":"New Delhi","state":"Delhi","country":"India","prize_amount":null,"prize_currency":null,"team_min":1,"team_max":1,"registrations":20,"is_paid":false,"tags":["Data Structures and Algorithms","Problem Solving","Logical Reasoning","C++ Programming Language","Critical Thinking"],"image_url":"https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/6ac81648d567f_IIIT_Delhi_logo.jpg"}];
+
+// Map the raw scraper schema → the fields the UI renders.
+// Keeps the UI resilient when fields are null (prize/location often are).
+const SOURCE_LABEL = { unstop: "Unstop", hackerearth: "HackerEarth", devfolio: "Devfolio" };
+const NOW = new Date("2026-10-13T00:00:00+05:30");
+
+function daysUntil(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d)) return null;
+  return Math.ceil((d - NOW) / 86400000);
+}
+function fmtPrize(amount, currency) {
+  if (!amount) return null;
+  const sym = currency === "USD" ? "$" : currency === "INR" ? "₹" : (currency ? currency + " " : "₹");
+  if (amount >= 100000) return sym + (amount / 100000).toFixed(amount % 100000 ? 1 : 0) + "L";
+  if (amount >= 1000) return sym + (amount / 1000).toFixed(amount % 1000 ? 1 : 0) + "k";
+  return sym + amount.toLocaleString("en-IN");
+}
+function fmtLocation(r) {
+  if (r.mode === "online") return "Online";
+  const parts = [r.city, r.state].filter(Boolean);
+  if (parts.length) return parts.join(", ");
+  if (r.country) return r.country;
+  return r.mode === "hybrid" ? "Hybrid" : "In-person";
+}
+function fmtTeam(min, max) {
+  if (!min && !max) return null;
+  if (min === 1 && (!max || max === 1)) return "Solo";
+  if (min && max) return min === max ? `Team of ${max}` : `${min}–${max}`;
+  if (max) return `Up to ${max}`;
+  return `${min}+`;
+}
+// Priority is derived (the feed has no priority field): closing soon + has prize = higher
+function derivePriority(closesIn, prizeAmount, registrations) {
+  let score = 0;
+  if (closesIn !== null && closesIn <= 5) score += 2;
+  else if (closesIn !== null && closesIn <= 14) score += 1;
+  if (prizeAmount && prizeAmount >= 50000) score += 2;
+  else if (prizeAmount && prizeAmount >= 10000) score += 1;
+  if (registrations && registrations >= 500) score += 1;
+  return score >= 3 ? "high" : score >= 1 ? "medium" : "low";
+}
+
+const hackathons = RAW_FEED.map(r => {
+  const closesIn = daysUntil(r.reg_end_at || r.end_at);
+  return {
+    title: r.title,
+    org: r.organizer || SOURCE_LABEL[r.source] || r.source,
+    location: fmtLocation(r),
+    mode: (r.mode && r.mode !== "unknown") ? r.mode : null,
+    prize: fmtPrize(r.prize_amount, r.prize_currency),
+    prizeVal: r.prize_amount || 0,
+    closesIn: closesIn,
+    team: fmtTeam(r.team_min, r.team_max),
+    registrations: r.registrations || 0,
+    isPaid: r.is_paid === true,
+    tags: (r.tags || []).slice(0, 4),
+    source: r.source,
+    sourceLabel: SOURCE_LABEL[r.source] || r.source,
+    sourceUrl: r.source_url,
+    image: r.image_url || null,
+    regEnd: r.reg_end_at || r.end_at,
+    priority: derivePriority(closesIn, r.prize_amount, r.registrations),
+  };
+}).filter(h => h.closesIn === null || h.closesIn >= -3); // drop long-expired
+
+const modeIcons = {
+  online: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>',
+  offline: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>',
+  hybrid: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>'
+};
+const mapIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+
+const PER_PAGE = 50;
+const state = { filter: "all", query: "", sort: "urgency", view: "card", status: "active", page: 1 };
+
+function getFiltered() {
+  let items = hackathons.filter(h => {
+    const isActive = h.closesIn === null || h.closesIn >= 0;   // past deadline = inactive
+    const matchS = state.status === "all" || (state.status === "active" ? isActive : !isActive);
+    const matchP = state.filter === "all" || h.priority === state.filter;
+    const q = state.query.toLowerCase();
+    const matchQ = !q || h.title.toLowerCase().includes(q) || h.location.toLowerCase().includes(q) || h.org.toLowerCase().includes(q) || h.tags.some(t => t.toLowerCase().includes(q));
+    return matchS && matchP && matchQ;
+  });
+  const BIG = 99999;
+  if (state.sort === "urgency") items.sort((a,b) => (a.closesIn ?? BIG) - (b.closesIn ?? BIG));
+  if (state.sort === "prize") items.sort((a,b) => b.prizeVal - a.prizeVal);
+  if (state.sort === "recent") items.sort((a,b) => b.registrations - a.registrations);
+  return items;
+}
+
+// formatting helpers shared by card + modal
+function closesText(d) {
+  if (d === null) return "TBA";
+  if (d < 0) return "Closed";
+  if (d === 0) return "Today";
+  if (d === 1) return "1 day";
+  return d + " days";
+}
+function logoHtml(h) {
+  if (h.image) return `<img class="card-logo" src="${h.image}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="card-logo-fallback" style="display:none">${(h.title[0]||"?").toUpperCase()}</span>`;
+  return `<span class="card-logo-fallback">${(h.title[0]||"?").toUpperCase()}</span>`;
+}
+
+function render() {
+  const list = document.getElementById("list");
+  const pag = document.getElementById("pagination");
+  const info = document.getElementById("pageInfo");
+  const all = getFiltered();
+
+  list.classList.toggle("mode-list", state.view === "list");
+
+  if (all.length === 0) {
+    list.innerHTML = `<div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><p>No hackathons match that search.</p></div>`;
+    pag.innerHTML = ""; info.innerHTML = "";
+    return;
+  }
+
+  const totalPages = Math.ceil(all.length / PER_PAGE);
+  if (state.page > totalPages) state.page = totalPages;
+  const start = (state.page - 1) * PER_PAGE;
+  const items = all.slice(start, start + PER_PAGE);
+
+  list.innerHTML = items.map(h => {
+    const urgent = h.closesIn !== null && h.closesIn >= 0 && h.closesIn <= 3;
+    return `
+    <div class="card p-${h.priority}" tabindex="0" role="button" data-idx="${hackathons.indexOf(h)}">
+      <div class="card-logo-wrap">${logoHtml(h)}</div>
+      <div class="card-left">
+        <div class="card-badges">
+          <span class="pill ${h.priority}">${h.priority === "high" ? "High" : h.priority === "medium" ? "Medium" : "Low"}</span>
+          <span class="org-badge">${h.org}</span>
+          <span class="src-badge">via ${h.sourceLabel}</span>
+        </div>
+        <div class="card-title-line">
+          <span class="card-title">${h.title}</span>
+          <span class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+        </div>
+        <div class="card-tags">
+          ${h.tags.map(t => `<span class="tag">${t}</span>`).join("")}
+          ${!h.isPaid ? `<span class="tag free">Free</span>` : ``}
+          ${h.team ? `<span class="tag">${h.team}</span>` : ``}
+        </div>
+      </div>
+      <div class="card-right">
+        <div class="stat"><div class="stat-label">Location</div><div class="stat-value"><span class="mi">${h.mode === "online" ? modeIcons.online : mapIcon}</span>${h.location}</div></div>
+        <div class="stat"><div class="stat-label">Mode</div><div class="stat-value">${h.mode ? `<span class="mi">${modeIcons[h.mode]}</span>${h.mode}` : "—"}</div></div>
+        <div class="stat prize"><div class="stat-label">Prize</div><div class="stat-value">${h.prize || "—"}</div></div>
+        <div class="stat closes ${urgent ? 'urgent' : ''}"><div class="stat-label">Closes</div><div class="stat-value">${closesText(h.closesIn)}</div></div>
+      </div>
+    </div>`;
+  }).join("");
+
+  list.querySelectorAll(".card").forEach(el => {
+    el.addEventListener("click", () => openModal(hackathons[el.dataset.idx]));
+    el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openModal(hackathons[el.dataset.idx]); } });
+  });
+
+  renderPagination(totalPages, all.length, start, items.length);
+}
+
+function renderPagination(totalPages, total, start, shown) {
+  const pag = document.getElementById("pagination");
+  const info = document.getElementById("pageInfo");
+  info.textContent = `Showing ${start + 1}–${start + shown} of ${total} hackathons`;
+
+  if (totalPages <= 1) { pag.innerHTML = ""; return; }
+
+  const p = state.page;
+  let pages = [];
+  const push = n => pages.push(n);
+  push(1);
+  if (p > 3) pages.push("…");
+  for (let i = Math.max(2, p - 1); i <= Math.min(totalPages - 1, p + 1); i++) push(i);
+  if (p < totalPages - 2) pages.push("…");
+  if (totalPages > 1) push(totalPages);
+
+  pag.innerHTML =
+    `<button class="page-btn" data-page="${p - 1}" ${p === 1 ? "disabled" : ""} aria-label="Previous"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg></button>` +
+    pages.map(pg => pg === "…"
+      ? `<span class="page-ellipsis">…</span>`
+      : `<button class="page-btn ${pg === p ? "active" : ""}" data-page="${pg}">${pg}</button>`).join("") +
+    `<button class="page-btn" data-page="${p + 1}" ${p === totalPages ? "disabled" : ""} aria-label="Next"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m9 18 6-6-6-6"/></svg></button>`;
+
+  pag.querySelectorAll(".page-btn[data-page]").forEach(btn => {
+    if (btn.disabled) return;
+    btn.addEventListener("click", () => {
+      state.page = parseInt(btn.dataset.page);
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+}
+
+function openModal(h) {
+  const modal = document.getElementById("modal");
+  const regLine = h.regEnd ? new Date(h.regEnd).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "To be announced";
+  modal.innerHTML = `
+    <div class="modal-top">
+      <div style="display:flex; gap:14px; align-items:flex-start;">
+        <div class="modal-logo">${logoHtml(h)}</div>
+        <div>
+          <div class="card-badges" style="margin-bottom:6px">
+            <span class="pill ${h.priority}">${h.priority === "high" ? "High" : h.priority === "medium" ? "Medium" : "Low"}</span>
+            <span class="src-badge">via ${h.sourceLabel}</span>
+          </div>
+          <h2 class="modal-title">${h.title}</h2>
+          <div class="modal-org">${h.org}</div>
+        </div>
+      </div>
+      <button class="modal-close" id="closeModal" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="fact-grid">
+      <div class="fact"><div class="fact-label">Location</div><div class="fact-value">${h.location}</div></div>
+      <div class="fact"><div class="fact-label">Mode</div><div class="fact-value">${h.mode || "—"}</div></div>
+      <div class="fact"><div class="fact-label">Prize</div><div class="fact-value">${h.prize || "Not listed"}</div></div>
+      <div class="fact"><div class="fact-label">Closes in</div><div class="fact-value">${closesText(h.closesIn)}</div></div>
+      <div class="fact"><div class="fact-label">Team size</div><div class="fact-value">${h.team || "Any"}</div></div>
+      <div class="fact"><div class="fact-label">Entry</div><div class="fact-value">${h.isPaid ? "Paid" : "Free"}</div></div>
+    </div>
+    ${ h.tags.length ? `<div class="section-label">Themes</div><div class="card-tags" style="margin-bottom:24px">${h.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>` : `` }
+    <div class="section-label">Registration</div>
+    <div class="news-item" style="margin-bottom:24px">Registration ${h.closesIn !== null && h.closesIn < 0 ? "closed on" : "closes"} <strong>${regLine}</strong>${h.registrations ? ` · ${h.registrations.toLocaleString("en-IN")} registered so far` : ``}.</div>
+    <div class="section-label">Source</div>
+    <a class="source-row" href="${h.sourceUrl}" target="_blank" rel="noopener" style="text-decoration:none">
+      <div><div class="source-name">${h.sourceLabel}</div><div class="source-url">${(h.sourceUrl || "").replace(/^https?:\/\//, "").slice(0, 44)}</div></div>
+      <div class="source-meta">Open<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg></div>
+    </a>
+  `;
+  document.getElementById("overlay").classList.add("open");
+  document.getElementById("closeModal").addEventListener("click", closeModal);
+}
+function closeModal() { document.getElementById("overlay").classList.remove("open"); }
+document.getElementById("overlay").addEventListener("click", e => { if (e.target.id === "overlay") closeModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+const searchInput = document.getElementById("search");
+const clearBtn = document.getElementById("clearBtn");
+searchInput.addEventListener("input", e => { state.query = e.target.value; state.page = 1; clearBtn.style.display = state.query ? "flex" : "none"; render(); });
+clearBtn.addEventListener("click", () => { searchInput.value = ""; state.query = ""; state.page = 1; clearBtn.style.display = "none"; render(); });
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => { document.querySelectorAll(".tab").forEach(t => t.classList.remove("active")); tab.classList.add("active"); state.filter = tab.dataset.filter; state.page = 1; render(); });
+});
+
+// view toggle (card / list) — synced with settings switch
+const viewToggle = document.getElementById("viewToggle");
+const listSwitch = document.getElementById("listSwitch");
+function setView(v) {
+  state.view = v;
+  viewToggle.querySelectorAll(".view-btn").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  listSwitch.classList.toggle("on", v === "list");
+  render();
+}
+viewToggle.querySelectorAll(".view-btn").forEach(btn => btn.addEventListener("click", () => setView(btn.dataset.view)));
+listSwitch.addEventListener("click", () => setView(listSwitch.classList.contains("on") ? "card" : "list"));
+
+// status toggle (active / past / all)
+const statusToggle = document.getElementById("statusToggle");
+statusToggle.querySelectorAll(".status-btn").forEach(btn => btn.addEventListener("click", () => {
+  statusToggle.querySelectorAll(".status-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  state.status = btn.dataset.status;
+  state.page = 1;
+  render();
+}));
+
+const sortBtn = document.getElementById("sortBtn"), sortMenu = document.getElementById("sortMenu");
+sortBtn.addEventListener("click", () => sortMenu.classList.toggle("open"));
+document.querySelectorAll(".sort-item").forEach(item => {
+  item.addEventListener("click", () => { state.sort = item.dataset.sort; state.page = 1; document.getElementById("sortLabel").textContent = item.textContent; sortMenu.classList.remove("open"); render(); });
+});
+document.addEventListener("click", e => { if (!sortBtn.contains(e.target) && !sortMenu.contains(e.target)) sortMenu.classList.remove("open"); });
+
+const settingsToggle = document.getElementById("settingsToggle"), settingsOverlay = document.getElementById("settingsOverlay");
+settingsToggle.addEventListener("click", () => settingsOverlay.classList.add("open"));
+document.getElementById("bannerBtn").addEventListener("click", () => {
+  settingsOverlay.classList.add("open");
+  const about = document.querySelector(".about-block");
+  if (about) setTimeout(() => about.scrollIntoView({ behavior: "smooth", block: "nearest" }), 200);
+});
+document.getElementById("closeSettings").addEventListener("click", () => settingsOverlay.classList.remove("open"));
+settingsOverlay.addEventListener("click", e => { if (e.target.id === "settingsOverlay") settingsOverlay.classList.remove("open"); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") settingsOverlay.classList.remove("open"); });
+
+const aiToggle = document.getElementById("aiToggle"), aiPopover = document.getElementById("aiPopover");
+aiToggle.addEventListener("click", () => aiPopover.classList.toggle("open"));
+document.addEventListener("click", e => { if (!aiToggle.contains(e.target) && !aiPopover.contains(e.target)) aiPopover.classList.remove("open"); });
+
+
+
+document.getElementById("darkSwitch").addEventListener("click", function() { this.classList.toggle("on"); document.documentElement.setAttribute("data-theme", this.classList.contains("on") ? "dark" : "light"); });
+
+
+render();
+</script>
+</body>
 </html>

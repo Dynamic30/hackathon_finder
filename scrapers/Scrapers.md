@@ -14,6 +14,8 @@
 | 10       | MLH         | Aggregator | ⬜     | HTML scrape    | Global standard but mostly US/Europe, some India-relevant online events |
 | 11       | DoraHacks   | Aggregator | ⬜     | API            | Web3/open-source niche, has API (BUIDL platform), low relevance for general use |
 | 12       | Instagram   | Community  | ⬜     | Low priority   | College tech-fest pages, rate-limited/risky, skip for v1 |
+| 13       | GDG (google deveoper group)| community | ⬜ | medium | google dev group hackathon, cna check in end |
+| 14       |Individual plarforms (hackerRank, paypal, etc.) | independent (only 1-2 hacakthon per  month) | Aggregator | ⬜ | low 
 
 ## Status Legend
 ⬜ Not started · 🟨 In progress · ✅ Working · ⚠️ Broken
