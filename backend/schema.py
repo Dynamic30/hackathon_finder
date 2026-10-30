@@ -14,7 +14,6 @@ class Mode(str, Enum):          # you imported Enum but haven't used it
 class CARDS(BaseModel):
     id: int
     source: str
-    source_id: str
     source_url: str
     title: str
     organizer: str | None = None
@@ -31,20 +30,16 @@ class CARDS(BaseModel):
     prize_currency: str | None = None
     reg_end_at: datetime | None = None
     end_at: datetime | None = None
-    priority_tier: str | None = None    # set by priority()
-
-class CardsPage(BaseModel):
-    total: int
-    items: list[CARDS]
+    priority_tier: str          # set by priority()
 
 class HackathonDetail(CARDS):
-    model_config = ConfigDict(from_attributes=True)
     description: str | None = None
     description_format: str | None = None
     start_at: datetime | None = None
     reg_start_at: datetime | None = None
     registrations: int | None = None
     image_url: str | None = None
+    location_raw: str | None = None   # already in CARDS, can be removed
 
 
 class PriorityCard(CARDS):
