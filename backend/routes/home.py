@@ -99,7 +99,7 @@ async def all_cards(
 
     query = select(Hackathon).options(
         load_only(
-            Hackathon.id, Hackathon.title, Hackathon.source, Hackathon.source_url,
+            Hackathon.id, Hackathon.title, Hackathon.source, Hackathon.source_id, Hackathon.source_url,
             Hackathon.organizer, Hackathon.mode, Hackathon.tags, Hackathon.is_paid,
             Hackathon.team_min, Hackathon.team_max,
             Hackathon.city, Hackathon.state, Hackathon.country, Hackathon.location_raw,

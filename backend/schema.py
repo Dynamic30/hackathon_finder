@@ -14,6 +14,7 @@ class Mode(str, Enum):          # you imported Enum but haven't used it
 class CARDS(BaseModel):
     id: int
     source: str
+    source_id:str
     source_url: str
     title: str
     organizer: str | None = None
@@ -40,7 +41,7 @@ class HackathonDetail(CARDS):
     registrations: int | None = None
     image_url: str | None = None
     location_raw: str | None = None   # already in CARDS, can be removed
-
+    priority_tier: str | None = None
 
 class PriorityCard(CARDS):
     priority_score: int
