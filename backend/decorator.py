@@ -9,7 +9,8 @@ def cache(expire: int = 120):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             # Key includes function name + all params (page, limit, filters)
-            raw_key = f"{func.__name__}:{json.dumps(kwargs, sort_keys=True, default=str)}"
+            key_args = {k: v for k, v in kwargs.items() if k not in ("request", "db")}
+            raw_key = f"{func.__name__}:{json.dumps(key_args, sort_keys=True, default=str)}"
             key = f"cache:{hashlib.md5(raw_key.encode()).hexdigest()}"
 
             # Check cache

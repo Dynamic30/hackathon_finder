@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Depends
 from sqlalchemy import create_engine, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, load_only
 from schema import CARDS, PriorityCard
 from dotenv import load_dotenv
 from decorator import cache, rate_limit
@@ -96,14 +96,27 @@ async def all_cards(
     skip: int = 0,
     limit: int = 10,
 ):
-    all_hackathons = db.execute(select(Hackathon)).scalars().all()
+
+    query = select(Hackathon).options(
+        load_only(
+            Hackathon.id, Hackathon.title, Hackathon.source, Hackathon.source_url,
+            Hackathon.organizer, Hackathon.mode, Hackathon.tags, Hackathon.is_paid,
+            Hackathon.team_min, Hackathon.team_max,
+            Hackathon.city, Hackathon.state, Hackathon.country, Hackathon.location_raw,
+            Hackathon.prize_amount, Hackathon.prize_currency,
+            Hackathon.reg_end_at, Hackathon.end_at,
+            Hackathon.date_confidence, Hackathon.registrations,
+            Hackathon.is_active, Hackathon.scraped_at,
+        )
+    ).order_by(Hackathon.id)
 
     if status == "active":
-        all_hackathons = [h for h in all_hackathons if h.is_active]
+        query = query.where(Hackathon.is_active)
     elif status == "inactive":
-        all_hackathons = [h for h in all_hackathons if not h.is_active]
+        query = query.where(~Hackathon.is_active)
     # "all" → no filter
 
+    all_hackathons = db.execute(query).scalars().all()
     ranked = priority(all_hackathons)
 
     if tier is not None:
@@ -118,3 +131,4 @@ async def all_cards(
 
     page = ranked[skip : skip + limit]
     return [CARDS.model_validate(hackathon, from_attributes=True).model_dump(mode="json") for hackathon in page]
+

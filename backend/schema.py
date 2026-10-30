@@ -12,20 +12,40 @@ class Mode(str, Enum):          # you imported Enum but haven't used it
 
 
 class CARDS(BaseModel):
+    id: int
     source: str
+    source_id: str
     source_url: str
     title: str
-    mode: Mode
-    location: str | None = None
-    tags: list[str] = []
-    start_at: datetime | None = None
-    reg_end_at: datetime | None = None
-    prize_amount: int | None = None
-    image_url: str | None = None
     organizer: str | None = None
+    mode: Mode
+    tags: list[str] = []
     is_paid: bool | None = None
     team_min: int | None = None
     team_max: int | None = None
+    city: str | None = None
+    state: str | None = None
+    country: str | None = None
+    location_raw: str | None = None
+    prize_amount: int | None = None
+    prize_currency: str | None = None
+    reg_end_at: datetime | None = None
+    end_at: datetime | None = None
+    priority_tier: str | None = None    # set by priority()
+
+class CardsPage(BaseModel):
+    total: int
+    items: list[CARDS]
+
+class HackathonDetail(CARDS):
+    model_config = ConfigDict(from_attributes=True)
+    description: str | None = None
+    description_format: str | None = None
+    start_at: datetime | None = None
+    reg_start_at: datetime | None = None
+    registrations: int | None = None
+    image_url: str | None = None
+
 
 class PriorityCard(CARDS):
     priority_score: int
