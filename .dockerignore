@@ -1,0 +1,7 @@
+.git
+.claude
+.vscode
+.env
+tests
+**/__pycache__
+frontend/mock_frotned.html

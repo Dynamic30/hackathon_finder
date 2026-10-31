@@ -1,6 +1,22 @@
 services:
   api:
-    
+    build:
+      context: .
+      target: api
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379   # local redis; remove this line to use REDIS_URL from .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
 
+  redis:
+    image: redis:7-alpine
 
-  db:
+  scraper:
+    build:
+      context: .
+      target: scraper
+    env_file: .env
+    profiles: ["scrape"]              # docker compose run --rm scraper
