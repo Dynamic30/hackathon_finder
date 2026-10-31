@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hackathon Finder</title>
+<script>try { document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"; } catch (e) {}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/app.css">
+<script src="/static/js/api.js" defer></script>
+<script src="/static/js/format.js" defer></script>
+<script src="/static/js/app.js" defer></script>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark">H</div>
+      <span class="brand-name">Hackathon Finder</span>
+      <span class="brand-tag">IN</span>
+    </div>
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="Search by name, organizer, location, or theme…" autocomplete="off" />
+      <button class="clear-btn" id="clearBtn" aria-label="Clear search" hidden>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="header-actions">
+      <span class="live-pill" id="updated" hidden><span class="live-dot"></span> Updated <span id="updatedAt"></span></span>
+      <button class="icon-btn" aria-label="Notifications">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <button class="icon-btn" id="settingsToggle" aria-label="Settings">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="banner">
+  <button class="banner-btn" id="bannerBtn">
+    <span class="banner-headline"><span class="banner-text">Every hackathon, before the deadline.</span></span>
+    <span class="banner-reveal">Hackathon Finder — tap to learn more</span>
+  </button>
+</div>
+
+<div class="controls">
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-value="">All</button>
+    <button class="tab" data-value="high">High priority</button>
+    <button class="tab" data-value="medium">Medium</button>
+    <button class="tab" data-value="low">Low</button>
+  </div>
+  <div class="controls-right">
+    <div class="status-toggle" id="statusToggle">
+      <button class="status-btn active" data-value="active">Active</button>
+      <button class="status-btn" data-value="inactive">Past</button>
+      <button class="status-btn" data-value="all">All</button>
+    </div>
+    <div class="view-toggle" id="viewToggle">
+      <button class="view-btn active" data-view="card" aria-label="Card view"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/></svg></button>
+      <button class="view-btn" data-view="list" aria-label="List view"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+    </div>
+    <div class="sort-wrap">
+      <button class="sort-btn" id="sortBtn">Sort: <span id="sortLabel">Urgency</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="sort-menu" id="sortMenu">
+        <button class="sort-item" data-value="Urgency">Urgency</button>
+        <button class="sort-item" data-value="Prize">Prize</button>
+        <button class="sort-item" data-value="Recent">Recent</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="list" id="list"></div>
+
+<div class="status" id="status" hidden>
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+  <p id="statusText"></p>
+  <button class="btn" id="retry" hidden>Try again</button>
+</div>
+<div id="sentinel"></div>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Hackathon details"><div class="modal" id="modal"></div></div>
+
+<div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-label="Settings">
+  <div class="modal settings-modal">
+    <div class="modal-top">
+      <h2 class="modal-title">Settings</h2>
+      <button class="modal-close" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+
+    <div class="section-label">Appearance</div>
+    <div class="settings-block">
+      <div class="tweak-row"><span>Dark mode</span><button class="switch" id="darkSwitch" aria-label="Dark mode"></button></div>
+      <div class="tweak-row"><span>List mode</span><button class="switch" id="listSwitch" aria-label="List mode"></button></div>
+    </div>
+
+    <div class="section-label">Notifications</div>
+    <div class="settings-block">
+      <div class="ai-locked">
+        <span class="wip-badge">In progress</span>
+        <p>Not built yet — daily and weekly alerts over email or phone are on the way.</p>
+      </div>
+    </div>
+
+    <div class="section-label">How priority works</div>
+    <div class="settings-block">
+      <p class="about-body">Every hackathon gets a score out of 100: how soon registration closes (up to 55), the prize money (up to 35) and how many people have registered (up to 10).</p>
+      <div class="tweak-row"><div class="pill high">High</div><span>Score 60 or more</span></div>
+      <div class="tweak-row"><div class="pill medium">Medium</div><span>Score 35 to 59</span></div>
+      <div class="tweak-row"><div class="pill low">Low</div><span>Score under 35</span></div>
+      <p class="about-body">Closing within 3 days earns the most points and a closed one earns none. Prizes are converted to rupees so every currency compares fairly. A deadline that is only a guess counts for less.</p>
+    </div>
+
+    <div class="section-label">About</div>
+    <div class="settings-block about-block">
+      <h3 class="about-title">Every hackathon, before the deadline.</h3>
+      <p class="about-body">Hackathon Finder is one index that scrapes Devpost, Unstop, college notices and community channels — then ranks what it finds by what actually matters to you: your region, your level, prize size, and how soon each one closes.</p>
+      <p class="about-body">It started from a simple problem — good hackathons get discovered too late, buried across a dozen scattered sources. Hackathon Finder pulls them into one place and pushes an alert before the deadline, so you never miss one you'd have wanted to enter.</p>
+      <div class="about-meta">Currently indexing India · v0.1 · more regions coming soon</div>
+    </div>
+  </div>
+</div>
+
+<div class="ai-widget">
+  <div class="ai-popover" id="aiPopover">
+    <div class="ai-header">
+      <div class="ai-heading"><span class="spark"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.6 5.8L20 9l-6.4 1.2L12 16l-1.6-5.8L4 9l6.4-1.2z"/></svg></span>AI Assistant</div>
+      <div class="ai-subheading">Tell it your level, region, or just describe what you want.</div>
+    </div>
+    <div class="ai-locked">
+      <span class="wip-badge">In progress</span>
+      <p>The AI assistant isn't live yet — we're still building it. It'll let you describe what you're after and get matched automatically.</p>
+    </div>
+  </div>
+  <button class="ai-fab" id="aiToggle">
+    <span class="spark"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.6 5.8L20 9l-6.4 1.2L12 16l-1.6-5.8L4 9l6.4-1.2z"/></svg></span>Ask AI
+  </button>
+</div>
+
+<template id="cardTpl">
+  <div class="card" tabindex="0" role="button">
+    <div class="card-logo-wrap"><span class="card-logo-fallback" data-f="logo"></span></div>
+    <div class="card-left">
+      <div class="card-badges">
+        <span class="pill" data-f="pill"></span>
+        <span class="org-badge" data-f="org"></span>
+        <span class="src-badge" data-f="src"></span>
+      </div>
+      <div class="card-title-line">
+        <span class="card-title" data-f="title"></span>
+        <span class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+      </div>
+      <div class="card-tags" data-f="tags"></div>
+    </div>
+    <div class="card-right">
+      <div class="stat">
+        <div class="stat-label">Location</div>
+        <div class="stat-value">
+          <span class="mi">
+            <svg class="i-pin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <svg class="i-online" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+          </span>
+          <span data-f="location"></span>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Mode</div>
+        <div class="stat-value">
+          <span class="mi">
+            <svg class="i-online" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+            <svg class="i-offline" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
+            <svg class="i-hybrid" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </span>
+          <span data-f="mode"></span>
+        </div>
+      </div>
+      <div class="stat prize"><div class="stat-label">Prize</div><div class="stat-value" data-f="prize"></div></div>
+      <div class="stat closes" data-f="closesStat"><div class="stat-label">Closes</div><div class="stat-value" data-f="closes"></div></div>
+    </div>
+  </div>
+</template>
+
+<template id="modalTpl">
+  <div class="modal-top">
+    <div class="modal-head">
+      <div class="modal-logo"><span class="card-logo-fallback" data-f="logo"></span></div>
+      <div>
+        <div class="card-badges">
+          <span class="pill" data-f="pill"></span>
+          <span class="src-badge" data-f="src"></span>
+        </div>
+        <h2 class="modal-title" data-f="title"></h2>
+        <div class="modal-org" data-f="org"></div>
+      </div>
+    </div>
+    <button class="modal-close" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="fact-grid">
+    <div class="fact"><div class="fact-label">Location</div><div class="fact-value" data-f="location"></div></div>
+    <div class="fact"><div class="fact-label">Mode</div><div class="fact-value" data-f="mode"></div></div>
+    <div class="fact"><div class="fact-label">Prize</div><div class="fact-value" data-f="prize"></div></div>
+    <div class="fact"><div class="fact-label">Closes in</div><div class="fact-value" data-f="closes"></div></div>
+    <div class="fact"><div class="fact-label">Team size</div><div class="fact-value" data-f="team"></div></div>
+    <div class="fact"><div class="fact-label">Entry</div><div class="fact-value" data-f="entry"></div></div>
+  </div>
+  <div data-f="themes" hidden>
+    <div class="section-label">Themes</div>
+    <div class="card-tags modal-tags" data-f="tags"></div>
+  </div>
+  <div class="section-label">Registration</div>
+  <div class="news-item"><span data-f="regVerb"></span> <strong data-f="regDate"></strong><span data-f="regCount"></span>.</div>
+  <div data-f="about" hidden>
+    <div class="section-label">About</div>
+    <div class="news-item" data-f="description"></div>
+  </div>
+  <div class="news-item" data-f="note" hidden></div>
+  <div data-f="source" hidden>
+    <div class="section-label">Source</div>
+    <a class="source-row" data-f="link" target="_blank" rel="noopener noreferrer">
+      <div><div class="source-name" data-f="sourceName"></div><div class="source-url" data-f="sourceUrl"></div></div>
+      <div class="source-meta">Open<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg></div>
+    </a>
+  </div>
+</template>
+
+</body>
+</html>

@@ -25,7 +25,7 @@ def cache(expire: int = 120):
         return wrapper
     return decorator
 
-def rate_limit(max_requests: int = 10, window: int = 60):
+def rate_limit(max_requests: int = 120, window: int = 60):
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, request: Request, **kwargs):
