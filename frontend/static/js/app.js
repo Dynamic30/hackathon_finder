@@ -241,6 +241,7 @@ viewToggle.addEventListener("click", e => {
 });
 listSwitch.addEventListener("click", () => setView(listSwitch.classList.contains("on") ? "card" : "list"));
 darkSwitch.addEventListener("click", () => setDark(!darkSwitch.classList.contains("on")));
+$("themeToggle").addEventListener("click", () => setDark(!darkSwitch.classList.contains("on")));
 
 search.addEventListener("input", () => {
   clearBtn.hidden = !search.value;
