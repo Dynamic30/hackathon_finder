@@ -9,7 +9,8 @@ def cache(expire: int = 120):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             # Key includes function name + all params (page, limit, filters)
-            raw_key = f"{func.__name__}:{json.dumps(kwargs, sort_keys=True, default=str)}"
+            key_args = {k: v for k, v in kwargs.items() if k not in ("request", "db")}
+            raw_key = f"{func.__name__}:{json.dumps(key_args, sort_keys=True, default=str)}"
             key = f"cache:{hashlib.md5(raw_key.encode()).hexdigest()}"
 
             # Check cache
@@ -24,7 +25,7 @@ def cache(expire: int = 120):
         return wrapper
     return decorator
 
-def rate_limit(max_requests: int = 10, window: int = 60):
+def rate_limit(max_requests: int = 120, window: int = 60):
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, request: Request, **kwargs):

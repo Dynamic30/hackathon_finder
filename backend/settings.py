@@ -1,4 +1,9 @@
 from redis.asyncio import Redis
+import os
+from dotenv import load_dotenv
 
-redis_cache = Redis(host="localhost", port=9746,db=1,decode_responses=True)
-redis_rate_limiter = Redis(host="localhost",port=9745,db=1,decode_responses=True)
+load_dotenv()
+
+
+redis_cache = Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
+redis_rate_limiter = Redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)

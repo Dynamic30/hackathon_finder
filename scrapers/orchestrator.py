@@ -76,6 +76,7 @@ def db_format_push(scraped_data):
     compare the scraped data with what db has and set is_active = false for existing ones which:
         1. have date expiry
         2. are not in the current scraped data
+    and refresh dates + registrations of existing ones that are scraped again
     # TODO: re-compute priority
     """
     now = datetime.now(timezone.utc)
@@ -107,10 +108,13 @@ def db_format_push(scraped_data):
         return now > end
 
     deactivate, set_active = [], []                  # db ids
+    updates = []                                     # fresh dates for rows already in db
 
     # in db and scraped -> check dates (scraped first, then db; reg end before end)
     for item in to_check:
         row = existing[(item.source, item.source_id)]
+        updates.append({"id": row["id"], **item.model_dump(include={
+            "start_at", "end_at", "reg_start_at", "reg_end_at", "registrations", "date_confidence"})})
         end = item.reg_end_at or item.end_at or row["reg_end_at"] or row["end_at"]
         if end is None:
             continue                                 # no dates anywhere -> leave as is
@@ -134,6 +138,14 @@ def db_format_push(scraped_data):
                 f"INSERT INTO hackathons ({', '.join(cols)}) "
                 f"VALUES ({', '.join(':' + c for c in cols)})"
             ), data)
+
+        if updates:                                  # scraped value wins, db value stays if scraper has none
+            conn.execute(text(
+                "UPDATE hackathons SET start_at = COALESCE(:start_at, start_at), end_at = COALESCE(:end_at, end_at), "
+                "reg_start_at = COALESCE(:reg_start_at, reg_start_at), reg_end_at = COALESCE(:reg_end_at, reg_end_at), "
+                "registrations = COALESCE(:registrations, registrations), date_confidence = :date_confidence "
+                "WHERE id = :id"
+            ), updates)
 
         if deactivate:
             conn.execute(text("UPDATE hackathons SET is_active = FALSE WHERE id = ANY(:ids)"), {"ids": deactivate})
