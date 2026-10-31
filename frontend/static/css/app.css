@@ -1,7 +1,9 @@
 body { padding-bottom: 100px; }
+.theme-btn .i-sun, [data-theme="dark"] .theme-btn .i-moon { display: none; }
+[data-theme="dark"] .theme-btn .i-sun { display: block; }
 
 /* ---------- Banner ---------- */
-.banner { max-width: 1080px; margin: 0 auto; padding: 40px 24px 24px; text-align: center; }
+.banner { max-width: 1080px; margin: 0 auto; padding: 40px 24px 0; text-align: center; }
 .banner-btn {
   background: none; border: none; cursor: pointer; font-family: inherit;
   display: inline-flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 8px;
@@ -23,10 +25,14 @@ body { padding-bottom: 100px; }
   100% { transform: scaleX(0); transform-origin: right; }
 }
 .banner-reveal {
-  font-size: 12px; font-weight: 600; color: var(--ink-faint); letter-spacing: 0.02em;
-  opacity: 0; transform: translateY(-4px); transition: all 0.25s var(--ease); height: 0;
+  position: relative; font-size: 12px; font-weight: 600; color: var(--ink-faint); letter-spacing: 0.02em;
+  padding-bottom: 8px; opacity: 0; transform: translateY(-4px); transition: all 0.25s var(--ease);
 }
-.banner-btn:hover .banner-reveal, .banner-btn:focus-visible .banner-reveal { opacity: 1; transform: translateY(0); height: auto; }
+.banner-reveal::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ink), transparent); opacity: 0.25;
+}
+.banner-btn:hover .banner-reveal, .banner-btn:focus-visible .banner-reveal { opacity: 1; transform: translateY(0); }
 .banner-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 8px; }
 
 /* ---------- Controls ---------- */
