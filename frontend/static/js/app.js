@@ -1,5 +1,5 @@
 const BATCH = 30;
-const state = { tier: "", status: "active", sort: "Urgency" };
+const state = { tier: "", status: "active", sort: "Urgency", q: "" };
 let items = [];
 let hasMore = true;
 let loading = false;
@@ -7,6 +7,7 @@ let failed = false;
 let notice = "";
 let listRequest;
 let detailRequest;
+let replaceList = false;                    // next page replaces the visible cards instead of appending
 
 const $ = id => document.getElementById(id);
 const list = $("list");
@@ -16,7 +17,6 @@ const clearBtn = $("clearBtn");
 const modal = $("modal");
 const settings = $("settingsOverlay");
 const sortMenu = $("sortMenu");
-const aiPopover = $("aiPopover");
 const viewToggle = $("viewToggle");
 const listSwitch = $("listSwitch");
 const darkSwitch = $("darkSwitch");
@@ -75,13 +75,23 @@ function buildCard(h) {
   return card;
 }
 
-const matches = (h, q) =>
-  !q || [h.title, h.organizer, formatLocation(h), ...h.tags].some(text => text?.toLowerCase().includes(q));
+const matches = (h, q) => {
+  const texts = [h.title, h.organizer, formatLocation(h), ...h.tags].map(text => text?.toLowerCase());
+  return q.split(/\s+/).every(word => !word || texts.some(text => text?.includes(word)));   // every word must appear somewhere
+};
 
 const query = () => search.value.trim().toLowerCase();
+const localQuery = () => (query() === state.q ? "" : query());   // text the server hasn't searched yet
+
+const cards = new Map();                                          // reuse card elements so results don't flash on every search
+const cardFor = h => {
+  const key = h.source + ":" + h.source_id;
+  if (!cards.has(key)) cards.set(key, buildCard(h));
+  return cards.get(key);
+};
 
 const observer = new IntersectionObserver(entries => {
-  if (entries[0].isIntersecting && !failed && !query()) loadMore();
+  if (entries[0].isIntersecting && !failed && !localQuery()) loadMore();
 }, { rootMargin: "300px" });
 
 function watch(on) {
@@ -89,22 +99,27 @@ function watch(on) {
   if (on) observer.observe(sentinel);
 }
 
+function emptySearchText() {
+  const q = query();
+  if (!hasMore && q.startsWith(state.q)) return `No hackathon found for "${q}".`;   // everything it could match is loaded, so local search is complete
+  return q.length > 1 ? "Searching…" : "Type at least 2 characters to search all hackathons.";
+}
+
 function updateStatus() {
   let text = "";
   if (failed) text = notice;
-  else if (loading) text = items.length ? "Loading more…" : "Loading hackathons…";
-  else if (!items.length) text = "No hackathons found.";
-  else if (!list.children.length) text = "None of the hackathons loaded so far match your search.";
+  else if (loading) text = items.length || list.children.length ? "Loading more…" : state.q ? "Searching…" : "Loading hackathons…";
+  else if (!items.length) text = state.q ? `No hackathon found for "${state.q}".` : "No hackathons found.";
+  else if (!list.children.length) text = emptySearchText();
   else if (!hasMore) text = "No more hackathons";
-  else if (query()) text = "Search covers loaded hackathons only. Clear it to load more.";
   $("status").hidden = !text;
   $("statusText").textContent = text;
   $("retry").hidden = !failed;
 }
 
 function renderAll() {
-  const q = query();
-  list.replaceChildren(...items.filter(h => matches(h, q)).map(buildCard));
+  const q = localQuery();
+  list.replaceChildren(...items.filter(h => matches(h, q)).map(cardFor));
   updateStatus();
   watch(hasMore && !failed && !loading);
 }
@@ -119,10 +134,13 @@ async function loadMore() {
   try {
     const rows = await fetchCards(state, items.length, BATCH, listRequest.signal);
     const fresh = rows.slice(0, BATCH);
-    const q = query();
+    const q = localQuery();
     hasMore = rows.length > BATCH;
     items.push(...fresh);
-    list.append(...fresh.filter(h => matches(h, q)).map(buildCard));
+    const shown = fresh.filter(h => matches(h, q)).map(cardFor);
+    if (replaceList) list.replaceChildren(...shown);
+    else list.append(...shown);
+    replaceList = false;
   } catch (err) {
     if (err.name === "AbortError") return;
     failed = true;
@@ -133,13 +151,16 @@ async function loadMore() {
   watch(hasMore && !failed);
 }
 
-function reset() {
+function reset(soft = false) {              // soft: keep the cards on screen until the new results arrive
   listRequest?.abort();
   items = [];
   hasMore = true;
   loading = false;
-  list.replaceChildren();
-  window.scrollTo(0, 0);
+  replaceList = soft;
+  if (!soft) {
+    list.replaceChildren();
+    window.scrollTo(0, 0);
+  }
   loadMore();
 }
 
@@ -241,14 +262,26 @@ listSwitch.addEventListener("click", () => setView(listSwitch.classList.contains
 darkSwitch.addEventListener("click", () => setDark(!darkSwitch.classList.contains("on")));
 $("themeToggle").addEventListener("click", () => setDark(!darkSwitch.classList.contains("on")));
 
+let searchTimer;
+function applySearch() {
+  const next = query().length > 1 ? query() : "";
+  if (next === state.q || (!hasMore && next.startsWith(state.q))) return;   // nothing new, or everything it could match is loaded already
+  state.q = next;
+  reset(true);
+}
+
 search.addEventListener("input", () => {
   clearBtn.hidden = !search.value;
   renderAll();
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(applySearch, 300);
 });
 clearBtn.addEventListener("click", () => {
   search.value = "";
   clearBtn.hidden = true;
+  clearTimeout(searchTimer);
   renderAll();
+  applySearch();
 });
 
 $("retry").addEventListener("click", loadMore);
@@ -258,13 +291,11 @@ $("bannerBtn").addEventListener("click", () => {
   settings.classList.add("open");
   setTimeout(() => settings.querySelector(".about-block").scrollIntoView({ behavior: "smooth", block: "nearest" }), 200);
 });
-$("aiToggle").addEventListener("click", () => aiPopover.classList.toggle("open"));
 
 document.addEventListener("click", e => {
   const overlay = e.target.closest(".overlay");
   if (overlay && (e.target === overlay || e.target.closest(".modal-close"))) overlay.classList.remove("open");
   if (!e.target.closest(".sort-wrap")) sortMenu.classList.remove("open");
-  if (!e.target.closest(".ai-widget")) aiPopover.classList.remove("open");
 });
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") document.querySelectorAll(".overlay.open").forEach(overlay => overlay.classList.remove("open"));
