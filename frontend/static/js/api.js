@@ -13,9 +13,10 @@ async function getJSON(url, signal) {
   return res.json();
 }
 
-function fetchCards({ tier, status, sort }, skip, batch, signal) {
+function fetchCards({ tier, status, sort, q }, skip, batch, signal) {
   const params = new URLSearchParams({ sort_by: sort, status, skip, limit: batch + 1 });
   if (tier) params.set("tier", tier);
+  if (q) params.set("q", q);
   return getJSON(`/v1/all_cards?${params}`, signal);
 }
 

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Depends, Query
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from sqlalchemy.orm import Session, load_only
 from schema import CARDS, PriorityCard
 from dotenv import load_dotenv
@@ -95,6 +95,7 @@ async def all_cards(
     status: Literal["active", "inactive", "all"] = "active",
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
+    q: str | None = Query(None, max_length=100),
 ):
 
     query = select(Hackathon).options(
@@ -115,6 +116,13 @@ async def all_cards(
     elif status == "inactive":
         query = query.where(~Hackathon.is_active)
     # "all" → no filter
+
+    q = (q or "").replace("\x00", "").strip()
+    fields = [Hackathon.title, Hackathon.organizer, Hackathon.city, Hackathon.state,
+              Hackathon.country, Hackathon.location_raw, func.array_to_string(Hackathon.tags, " ")]
+    for word in q.split()[:5]:                       # every word must appear in some field
+        like = "%" + word.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+        query = query.where(or_(*(f.ilike(like, escape="\\") for f in fields)))
 
     all_hackathons = db.execute(query).scalars().all()
     ranked = priority(all_hackathons)
