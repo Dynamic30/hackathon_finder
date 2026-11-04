@@ -45,3 +45,5 @@ CREATE TABLE IF NOT EXISTS hackathons (
 
 CREATE INDEX IF NOT EXISTS hackathons_reg_end_idx ON hackathons (reg_end_at) WHERE is_active;
 CREATE INDEX IF NOT EXISTS hackathons_mode_idx    ON hackathons (mode)       WHERE is_active;
+ALTER TABLE public.hackathons ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.hackathons FROM anon, authenticated;

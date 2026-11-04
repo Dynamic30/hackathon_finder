@@ -52,7 +52,7 @@ def per_card_strucure(r : dict) -> dict:
 
 def devfolio_data():
     r = requests.post(URL,
-              json={"type": "application_open", "from": 0, "size": 200})
+              json={"type": "application_open", "from": 0, "size": 200}, timeout=30)
     r.raise_for_status()
     return [per_card_strucure(h["_source"]) for h in r.json()["hits"]["hits"]]
 

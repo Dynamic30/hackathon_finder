@@ -59,6 +59,7 @@ function shorten(text, max) {
 }
 
 function plainText(text, format) {
+  text = text.slice(0, 20000);
   const stripped = format === "html"
     ? new DOMParser().parseFromString(text.replace(/<(script|style)[\s\S]*?<\/\1>/gi, "").replace(/<[^>]*>/g, " "), "text/html").body.textContent
     : text.replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/^#+\s*/gm, "").replace(/[*`]/g, "");
