@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Request, Depends
-from sqlalchemy import create_engine, select
+from fastapi import APIRouter, Request, Depends, Query
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session, load_only
 from schema import CARDS, PriorityCard
 from dotenv import load_dotenv
-from decorator import cache, rate_limit
+from limits_decorator import cache, rate_limit
 from typing import Annotated, Literal
 from database import get_db
 from model import Hackathon
@@ -93,8 +93,8 @@ async def all_cards(
     sort_by: Literal["Prize", "Urgency", "Recent", "Priority"] = "Priority",
     tier: Literal["high", "medium", "low"] | None = None,
     status: Literal["active", "inactive", "all"] = "active",
-    skip: int = 0,
-    limit: int = 10,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
 ):
 
     query = select(Hackathon).options(
@@ -132,3 +132,9 @@ async def all_cards(
     page = ranked[skip : skip + limit]
     return [CARDS.model_validate(hackathon, from_attributes=True).model_dump(mode="json") for hackathon in page]
 
+@router.get("/last_updated")
+@rate_limit()
+@cache()
+async def last_updated(request: Request,db: Annotated[Session,Depends(get_db)]):
+    ts = db.execute(select(func.max(Hackathon.scraped_at))).scalar()
+    return {"scraped_at": ts.isoformat() if ts else None}

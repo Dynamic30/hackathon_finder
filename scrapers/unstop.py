@@ -8,6 +8,7 @@ def per_card_strucure(r : dict) -> dict:
     rq = r.get("regnRequirements") or {}
     addr = r.get("address_with_country_logo") or {}
     cash = [p for p in (r.get("prizes") or []) if p.get("cash")]
+    region = (r.get("region") or "").strip().lower()
 
     return {
     "source": "unstop",
@@ -26,7 +27,7 @@ def per_card_strucure(r : dict) -> dict:
     "reg_end_at": rq.get("end_regn_dt"),
     "date_confidence": "inferred",
 
-    "mode": r.get("region") or "unknown",   # already online / offline / hybrid
+    "mode": region if region in ("online", "offline", "hybrid") else "unknown",
     "city": addr.get("city") or None,
     "state": addr.get("state") or None,
     "country": (addr.get("country") or {}).get("name"),

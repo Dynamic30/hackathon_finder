@@ -16,7 +16,7 @@ async def lifespan(app:FastAPI):
 
     return
 
-app = FastAPI(title="Hackathon Finder",lifespan=lifespan)
+app = FastAPI(title="Hackathon Finder",lifespan=lifespan,docs_url=None,redoc_url=None,openapi_url=None)
 FRONTEND = Path(__file__).resolve().parent.parent / "frontend"
 
 

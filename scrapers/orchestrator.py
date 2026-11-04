@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from datetime import datetime, timezone
 import asyncio
 from sqlalchemy import create_engine, text
@@ -81,8 +81,19 @@ def db_format_push(scraped_data):
     """
     now = datetime.now(timezone.utc)
 
-    # flatten + validate, skip scrapers that failed
-    items = [DB_STRUCTURE(**i) for r in scraped_data if not isinstance(r, Exception) for i in r]
+    # flatten + validate, skip scrapers that failed, invalid records and duplicates
+    items, seen = [], set()
+    for r in scraped_data:
+        if isinstance(r, Exception):
+            continue
+        for i in r:
+            try:
+                item = DB_STRUCTURE(**i)
+            except ValidationError:
+                continue
+            if (item.source, item.source_id) not in seen:
+                seen.add((item.source, item.source_id))
+                items.append(item)
     ok_sources = {i.source for i in items}   # sources that returned data
 
     # map of everything already in the db, keyed by (source, source_id)

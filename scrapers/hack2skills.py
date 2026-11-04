@@ -48,7 +48,7 @@ URL = "https://hack2skill.com/api/v1/innovator/public/event/public-list?page=1&r
 
 def hack2skill_data():
 
-    response = requests.get(URL)
+    response = requests.get(URL, timeout=30)
     response.raise_for_status()
     return [per_card_strucure(i) for i in response.json()["data"]]
 

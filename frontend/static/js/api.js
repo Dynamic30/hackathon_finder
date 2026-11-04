@@ -19,6 +19,10 @@ function fetchCards({ tier, status, sort }, skip, batch, signal) {
   return getJSON(`/v1/all_cards?${params}`, signal);
 }
 
+function fetchLastUpdated() {
+  return getJSON("/v1/last_updated");
+}
+
 function fetchCard(source, sourceId, signal) {
   return getJSON(`/v1/cards/${encodeURIComponent(source)}/${encodeURIComponent(sourceId)}`, signal);
 }

@@ -2,6 +2,7 @@ from settings import redis_cache, redis_rate_limiter
 import json
 from functools import wraps
 from fastapi import HTTPException, Request
+from redis.exceptions import RedisError
 import hashlib
 
 def cache(expire: int = 120):
@@ -14,13 +15,19 @@ def cache(expire: int = 120):
             key = f"cache:{hashlib.md5(raw_key.encode()).hexdigest()}"
 
             # Check cache
-            cached = await redis_cache.get(key)
+            try:
+                cached = await redis_cache.get(key)
+            except RedisError:
+                cached = None                    # redis down -> treat as a miss
             if cached:
                 return json.loads(cached)
 
             # Miss — run actual function
             result = await func(*args, **kwargs)
-            await redis_cache.setex(key, expire, json.dumps(result, default=str))
+            try:
+                await redis_cache.setex(key, expire, json.dumps(result, default=str))
+            except RedisError:
+                pass
             return result
         return wrapper
     return decorator
@@ -35,9 +42,12 @@ def rate_limit(max_requests: int = 120, window: int = 60):
 
             key = f"rate:{func.__name__}:{identifier}"
 
-            current = await redis_rate_limiter.incr(key)
-            if current == 1:
-                await redis_rate_limiter.expire(key, window)
+            try:
+                current = await redis_rate_limiter.incr(key)
+                if current == 1:
+                    await redis_rate_limiter.expire(key, window)
+            except RedisError:
+                current = 0                      # redis down -> skip limiting, vercel firewall still applies
 
             if current > max_requests:
                 raise HTTPException(

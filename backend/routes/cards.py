@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, HTTPException
 from sqlalchemy import create_engine, select, text
 from sqlalchemy.orm import Session
 from schema import CARDS, HackathonDetail
-from decorator import cache, rate_limit
+from limits_decorator import cache, rate_limit
 from database import get_db
 from typing import Annotated
 from model import Hackathon

@@ -118,7 +118,7 @@ def devpost_data():
         # print(page)
         r = curl_cffi.get(
             f"https://devpost.com/api/hackathons?page={page}&status[]=upcoming&status[]=open",
-            impersonate="chrome"
+            impersonate="chrome", timeout=30
         )
         # print(r.status_code)
         data = r.json()

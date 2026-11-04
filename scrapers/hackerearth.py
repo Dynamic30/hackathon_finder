@@ -48,7 +48,7 @@ def per_card_strucure(r : dict) -> dict:
 
 def hackerearth_data(live_only=True,challenge_type=None): # added challenge type if later on i need to only pull hackathon data and not competitve
 
-    r = requests.get(URL)
+    r = requests.get(URL, timeout=30)
     r.raise_for_status()
     rows= r.json()["data"]
     if not live_only:
