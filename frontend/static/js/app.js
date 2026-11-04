@@ -123,8 +123,6 @@ async function loadMore() {
     hasMore = rows.length > BATCH;
     items.push(...fresh);
     list.append(...fresh.filter(h => matches(h, q)).map(buildCard));
-    $("updatedAt").textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    $("updated").hidden = false;
   } catch (err) {
     if (err.name === "AbortError") return;
     failed = true;
@@ -275,3 +273,9 @@ document.addEventListener("keydown", e => {
 setView(saved("view") === "list" ? "list" : "card");
 setDark(document.documentElement.dataset.theme === "dark");
 loadMore();
+fetchLastUpdated().then(({ scraped_at }) => {
+  const time = Date.parse(scraped_at);
+  if (isNaN(time)) return;
+  $("updatedAt").textContent = new Date(time).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  $("updated").hidden = false;
+}).catch(() => {});
