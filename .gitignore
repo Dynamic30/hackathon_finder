@@ -4,3 +4,4 @@ test.txt
 tests/
 __pycache__/
 .env
+frontend/mock_frotned.html
