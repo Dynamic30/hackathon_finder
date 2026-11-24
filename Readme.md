@@ -1,41 +1,74 @@
+<div align="center">
+
+<img src="frontend/static/favicon.svg" width="88" alt="Hackathon Finder logo">
+
 # Hackathon Finder
 
-## need
+Upcoming hackathons in India, from every major source, ranked by deadline, prize and priority.
 
-there are a lot of Hackathon that happen and we can find them but a deticated platform that scrapes all sources in any region, sorts them by region , online offlien mode etc. and people can see what is the upcomming hacakthon and can sour them based on priority 
+![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.162-009688?logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-cache-DC382D?logo=redis&logoColor=white)
 
-for region, it is currently mapped to India but in future more regions will be added as well
+</div>
 
-## how it works
+## What it does
 
-scrapers pull hackathons from unstop, devpost, devfolio, hackerearth and hack2skill. the orchestrator pushes them to postgres (supabase). fastapi serves them and also serves the frontend, which is plain html, css and js with no build step.
+There are a lot of hackathons and you can find them, but there was no dedicated place that scrapes all the sources, sorts them by region, online or offline mode etc., and shows what is upcoming and what matters most.
+
+Hackathon Finder scrapes Unstop, Devpost, Devfolio, HackerEarth and Hack2Skill, puts them in one list and ranks them. Region is currently India, more regions will be added later.
+
+## Features
+
+- Priority ranking: every hackathon gets a score and a High, Medium or Low tier.
+- Sort by urgency, prize or recent, and filter by tier.
+- Active, past or all hackathons.
+- Search by name, organizer, location or theme.
+- Detail page for each hackathon with dates, prize, team size, entry and a link to the source.
+- Light and dark theme, and card or list layout.
+- Infinite scroll, no build step.
+
+## How it works
+
+Scrapers pull hackathons from the five sources. The orchestrator pushes them to postgres (supabase). FastAPI serves them and also serves the frontend, which is plain html, css and js.
 
     scrapers/   scrapers + orchestrator
     backend/    fastapi api
     frontend/   index.html, error.html, static/
 
-priority is not stored in the db, it is calculated on every request. every hackathon gets a score out of 100 (deadline 55, prize 35, registrations 10). 60 or more is high, 35 or more is medium, the rest is low. the code is in `priority()` in backend/routes/home.py
+### Priority
 
-## run it
+Priority is not stored in the db, it is calculated on every request. Every hackathon gets a score out of 100.
 
-you need a postgres db and a redis (upstash works). make a `.env` in the root
+| Part | Max | Based on |
+|---|---|---|
+| Deadline | 55 | how soon registration closes |
+| Prize | 35 | cash value, converted to INR |
+| Registrations | 10 | how many have registered |
+
+60 or more is high, 35 or more is medium, the rest is low. The code is in `priority()` in `backend/routes/home.py`.
+
+## Run it
+
+You need a postgres db and a redis (upstash works). Make a `.env` in the root, see `.env.example`.
 
     sql_db=postgresql://...
     REDIS_URL=rediss://...
 
-with docker
+With docker
 
     docker compose up --build
 
-then open localhost:8000. compose starts its own redis so the REDIS_URL in .env is not used there.
+then open localhost:8000. Compose starts its own redis so the REDIS_URL in .env is not used there.
 
-without docker
+Without docker
 
     pip install -r requirements.txt
     playwright install chromium
     fastapi dev backend/main.py
 
-to get data, run the orchestrator. it creates the tables first (backend/db_structure/hacakthon.sql), then scrapes and pushes. run it again whenever you want fresh data, it updates the dates and marks old ones inactive
+To get data, run the orchestrator. It creates the tables first (`backend/db_structure/hacakthon.sql`), then scrapes and pushes. Run it again whenever you want fresh data, it updates the dates and marks old ones inactive.
 
     python -m scrapers.orchestrator
 
@@ -43,20 +76,22 @@ or in docker
 
     docker compose run --rm scraper
 
-## api
+## API
 
     GET /v1/all_cards
     sort_by = Prize | Urgency | Recent | Priority
     tier    = high | medium | low
     status  = active | inactive | all
-    skip, limit
+    q, skip, limit
 
     GET /v1/cards/{source}/{source_id}
 
-second one gives the full details of one hackathon. 120 requests per minute per ip, and the list is cached for 2 minutes
+    GET /v1/last_updated
 
-## feature addition (for future)
+The second one gives the full details of one hackathon. 120 requests per minute per ip, and the list is cached for 2 minutes.
 
-if a user sign in in that case we can have a subscription where they will pay so we give them insights on hackathon as well 
-like reddit and other sources reviews and insight which we scrape and get them on dashboard 
-a good addition but a bit tricky
+## Future
+
+- Sign in, with a paid plan that gives insights on each hackathon, like reddit and other source reviews which we scrape and show on a dashboard. A good addition but a bit tricky.
+- Organizer or company tags (Google, Meta etc.) to filter by and to rank higher.
+- More regions.
